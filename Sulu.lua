@@ -1,4 +1,4 @@
-if PlaceId == 17625359962 then
+if game.PlaceId == 17625359962 then
 
   -- Boot Ui Library
   local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
