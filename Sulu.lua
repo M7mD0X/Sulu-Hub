@@ -54,9 +54,7 @@ local Teams = game:GetService("Teams")
 local LocalPlayer = Players.LocalPlayer
 local Camera = game.Workspace.CurrentCamera
 
-local aimSmoothing = 0.2 -- Lower = smoother aim
-local teamCheckInterval = 5
-local lastTeamCheck = 0
+local aimSmoothing = 0.15 -- Lower = smoother aim
 local aimbotEnabled = false
 
 -- Create GUI
@@ -93,29 +91,29 @@ local function isVisible(target)
     return result == nil or result.Instance:IsDescendantOf(target.Parent)
 end
 
-local function getClosestTarget()
-    local closestTarget = nil
-    local highestDot = -math.huge
+local function getBestTarget()
+    local bestTarget = nil
+    local bestDot = -math.huge
 
     for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        if player ~= LocalPlayer and player.Character then
             if Teams and player.Team == LocalPlayer.Team then
                 continue
             end
 
-            local targetPart = player.Character:FindFirstChild("HumanoidRootPart")
+            local targetPart = player.Character:FindFirstChild("Head") or player.Character:FindFirstChild("HumanoidRootPart")
             if targetPart and isVisible(targetPart) then
                 local direction = (targetPart.Position - Camera.CFrame.Position).Unit
                 local dot = direction:Dot(Camera.CFrame.LookVector)
 
-                if dot > highestDot then
-                    highestDot = dot
-                    closestTarget = targetPart
+                if dot > bestDot then
+                    bestDot = dot
+                    bestTarget = targetPart
                 end
             end
         end
     end
-    return closestTarget
+    return bestTarget
 end
 
 local function aimAt(target)
@@ -129,19 +127,14 @@ end
 
 local function updateAimbot()
     if aimbotEnabled then
-        local target = getClosestTarget()
+        local target = getBestTarget()
         if target then
             aimAt(target)
         end
     end
 end
 
-RunService.RenderStepped:Connect(function()
-    if tick() - lastTeamCheck > teamCheckInterval then
-        lastTeamCheck = tick()
-    end
-    updateAimbot()
-end)
+RunService.RenderStepped:Connect(updateAimbot)
 
 ToggleButton.MouseButton1Click:Connect(function()
     aimbotEnabled = not aimbotEnabled
