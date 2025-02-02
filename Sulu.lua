@@ -3,20 +3,19 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 -- Create Window
 local Window = Rayfield:CreateWindow({
-   Name = "Fisch Hub",
-   LoadingTitle = "Fisch Game Hub",
-   LoadingSubtitle = "by YourName",
-   ConfigurationSaving = { Enabled = false },
+   Name = "Sulu",
+   LoadingTitle = "This Script Made Using AI",
+   LoadingSubtitle = "by Cero",
+   ConfigurationSaving = { Enabled = True },
    KeySystem = false
 })
 
--- **Create Main Tab (Empty for Now)**
+-- **Create Tabs**
 local MainTab = Window:CreateTab("Main", nil)
-
--- **Create Teleport Tab**
 local TeleportTab = Window:CreateTab("Teleport", nil)
+local CharacterTab = Window:CreateTab("Character", nil)
 
--- **Function to Get All Islands and Their Spawn Points**
+-- **Get All Islands & Their Spawn Points**
 local function getIslandsFromWorld()
     local islands = {}
     local worldFolder = workspace:FindFirstChild("world")
@@ -37,7 +36,7 @@ local function getIslandsFromWorld()
     return islands
 end
 
--- **Get Islands List**
+-- **Dropdown for Selecting an Island**
 local islands = getIslandsFromWorld()
 local islandNames = {}
 for islandName, _ in pairs(islands) do
@@ -45,8 +44,6 @@ for islandName, _ in pairs(islands) do
 end
 
 local selectedIsland = nil
-
--- **Dropdown for Selecting an Island**
 local Dropdown = TeleportTab:CreateDropdown({
    Name = "Select Island",
    Options = islandNames,
@@ -58,7 +55,7 @@ local Dropdown = TeleportTab:CreateDropdown({
    end,
 })
 
--- **Button to Teleport to Selected Island**
+-- **Button to Teleport**
 TeleportTab:CreateButton({
     Name = "Teleport to Selected Island",
     Callback = function()
@@ -70,15 +67,34 @@ TeleportTab:CreateButton({
     end
 })
 
--- **Create Character Tab**
-local CharacterTab = Window:CreateTab("Character", nil)
-
--- **State Variables for Toggles**
+-- **Character Settings Variables**
 local walkSpeedEnabled = false
 local jumpPowerEnabled = false
 local gravityEnabled = false
+local walkSpeed = 16
+local jumpPower = 50
+local gravity = 196.2
 
--- **Walk Speed Toggle**
+-- **Function to Continuously Apply Character Changes**
+task.spawn(function()
+    while true do
+        local character = game.Players.LocalPlayer.Character
+        if character and character:FindFirstChild("Humanoid") then
+            if walkSpeedEnabled then
+                character.Humanoid.WalkSpeed = walkSpeed
+            end
+            if jumpPowerEnabled then
+                character.Humanoid.JumpPower = jumpPower
+            end
+        end
+        if gravityEnabled then
+            game.Workspace.Gravity = gravity
+        end
+        task.wait(0.1) -- Smooth Updates
+    end
+end)
+
+-- **Walk Speed Toggle & Slider**
 CharacterTab:CreateToggle({
     Name = "Enable Walk Speed",
     CurrentValue = false,
@@ -88,7 +104,6 @@ CharacterTab:CreateToggle({
     end,
 })
 
--- **Walk Speed Slider**
 CharacterTab:CreateSlider({
     Name = "Walk Speed",
     Range = {16, 100},
@@ -97,16 +112,11 @@ CharacterTab:CreateSlider({
     CurrentValue = 16,
     Flag = "WalkSpeed",
     Callback = function(Value)
-        if walkSpeedEnabled then
-            local character = game.Players.LocalPlayer.Character
-            if character and character:FindFirstChild("Humanoid") then
-                character.Humanoid.WalkSpeed = Value
-            end
-        end
+        walkSpeed = Value
     end,
 })
 
--- **Jump Power Toggle**
+-- **Jump Power Toggle & Slider**
 CharacterTab:CreateToggle({
     Name = "Enable Jump Power",
     CurrentValue = false,
@@ -116,7 +126,6 @@ CharacterTab:CreateToggle({
     end,
 })
 
--- **Jump Power Slider**
 CharacterTab:CreateSlider({
     Name = "Jump Power",
     Range = {50, 200},
@@ -125,16 +134,11 @@ CharacterTab:CreateSlider({
     CurrentValue = 50,
     Flag = "JumpPower",
     Callback = function(Value)
-        if jumpPowerEnabled then
-            local character = game.Players.LocalPlayer.Character
-            if character and character:FindFirstChild("Humanoid") then
-                character.Humanoid.JumpPower = Value
-            end
-        end
+        jumpPower = Value
     end,
 })
 
--- **Gravity Toggle**
+-- **Gravity Toggle & Slider**
 CharacterTab:CreateToggle({
     Name = "Enable Gravity",
     CurrentValue = false,
@@ -144,7 +148,6 @@ CharacterTab:CreateToggle({
     end,
 })
 
--- **Gravity Slider**
 CharacterTab:CreateSlider({
     Name = "Gravity",
     Range = {50, 196.2},
@@ -153,8 +156,6 @@ CharacterTab:CreateSlider({
     CurrentValue = 196.2,
     Flag = "Gravity",
     Callback = function(Value)
-        if gravityEnabled then
-            game.Workspace.Gravity = Value
-        end
+        gravity = Value
     end,
 })
