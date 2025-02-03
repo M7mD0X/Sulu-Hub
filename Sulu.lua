@@ -3,19 +3,21 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 -- Create Window
 local Window = Rayfield:CreateWindow({
-   Name = "Fisch Hub",
-   LoadingTitle = "Fisch Game Hub",
-   LoadingSubtitle = "by YourName",
+   Name = "Sulu Hub",
+   LoadingTitle = "Sulu Hub",
+   LoadingSubtitle = "by Cero",
    ConfigurationSaving = { Enabled = false },
    KeySystem = false
 })
 
--- **Create Tabs**
+-- Create Tabs
 local MainTab = Window:CreateTab("Main", nil)
 local TeleportTab = Window:CreateTab("Teleport", nil)
 local CharacterTab = Window:CreateTab("Character", nil)
 
--- **Get All Islands & Their Spawn Points**
+--------------------------
+-- Teleport Functionality
+--------------------------
 local function getIslandsFromWorld()
     local islands = {}
     local worldFolder = workspace:FindFirstChild("world")
@@ -36,7 +38,6 @@ local function getIslandsFromWorld()
     return islands
 end
 
--- **Dropdown for Selecting an Island**
 local islands = getIslandsFromWorld()
 local islandNames = {}
 for islandName, _ in pairs(islands) do
@@ -55,7 +56,6 @@ local Dropdown = TeleportTab:CreateDropdown({
    end,
 })
 
--- **Button to Teleport**
 TeleportTab:CreateButton({
     Name = "Teleport to Selected Island",
     Callback = function()
@@ -67,7 +67,9 @@ TeleportTab:CreateButton({
     end
 })
 
--- **Character Settings Variables**
+-----------------------------
+-- Character Modifications
+-----------------------------
 local walkSpeedEnabled = false
 local jumpPowerEnabled = false
 local gravityEnabled = false
@@ -75,21 +77,21 @@ local walkSpeed = 16
 local jumpPower = 50
 local gravity = 196.2
 
--- **Function to Continuously Apply Character Changes**
+-- Function to Continuously Apply Character Changes
 task.spawn(function()
     while true do
         local player = game.Players.LocalPlayer
         if player and player.Character and player.Character:FindFirstChild("Humanoid") then
             local humanoid = player.Character:FindFirstChild("Humanoid")
             
-            -- **Apply WalkSpeed**
+            -- Apply WalkSpeed
             if walkSpeedEnabled then
                 humanoid.WalkSpeed = walkSpeed
             else
                 humanoid.WalkSpeed = 16 -- Reset to Default
             end
 
-            -- **Apply JumpPower**
+            -- Apply JumpPower
             if jumpPowerEnabled then
                 humanoid.JumpPower = jumpPower
             else
@@ -97,7 +99,7 @@ task.spawn(function()
             end
         end
 
-        -- **Apply Gravity**
+        -- Apply Gravity
         if gravityEnabled then
             game.Workspace.Gravity = gravity
         else
@@ -108,7 +110,7 @@ task.spawn(function()
     end
 end)
 
--- **Walk Speed Toggle & Slider**
+-- Walk Speed Toggle & Slider
 CharacterTab:CreateToggle({
     Name = "Enable Walk Speed",
     CurrentValue = false,
@@ -130,7 +132,7 @@ CharacterTab:CreateSlider({
     end,
 })
 
--- **Jump Power Toggle & Slider**
+-- Jump Power Toggle & Slider
 CharacterTab:CreateToggle({
     Name = "Enable Jump Power",
     CurrentValue = false,
@@ -152,7 +154,7 @@ CharacterTab:CreateSlider({
     end,
 })
 
--- **Gravity Toggle & Slider**
+-- Gravity Toggle & Slider
 CharacterTab:CreateToggle({
     Name = "Enable Gravity",
     CurrentValue = false,
@@ -173,3 +175,12 @@ CharacterTab:CreateSlider({
         gravity = Value
     end,
 })
+
+--------------------------------
+-- Finalizing Sulu Hub
+--------------------------------
+-- When the script starts, reset to default values
+walkSpeed = 16
+jumpPower = 50
+gravity = 196.2
+game.Workspace.Gravity = gravity
