@@ -170,7 +170,7 @@ FishingTab:CreateToggle({
                 local hrp = gethrp() -- get humanoidRootPart
                 originalPosition = hrp.Position -- Save player's position
                 hrp.CFrame = CFrame.new(selectedZone) -- Teleport to zone
-                hrp.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + 8, hrp.Position.Z) -- Move up by 8 -- TEsT hhhhhhh
+                hrp.CFrame = CFrame.new(selectedZone += 8) -- Move up by 8 -- TEsT hhhhhhh
                 -- Freeze character by anchoring
                 hrp.Anchored = true 
 
@@ -184,9 +184,9 @@ FishingTab:CreateToggle({
                 Rayfield:Notify({ Title = "Error", Content = "No zone selected!", Duration = 3 })
             end
         else
-            if originalPosition then
+            --[[if originalPosition then
                 hrp.CFrame = CFrame.new(originalPosition) -- Teleport back
-            end
+            end]]
 
             -- Unfreeze character
             hrp.Anchored = false 
