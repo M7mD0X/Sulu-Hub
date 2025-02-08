@@ -106,7 +106,7 @@ task.spawn(function()
             if rod and rod:FindFirstChild("values") and rod.values:FindFirstChild("lure") then
                 if rod.values.lure.Value == 100 then
                     task.wait(0.3) -- Faster reeling
-                    ReplicatedStorage.events.reelfinished:FireServer(100, flags['alwaysperfectcatch'] = Value)
+                    ReplicatedStorage.events.reelfinished:FireServer(100, true)
                 end
             end
         end
@@ -242,15 +242,6 @@ FishingTab:CreateToggle({
     end,
 })
 
-FishingTab:CreateToggle({
-    Name = "Always Perfect Catch",
-    CurrentValue = false,
-    Flag = "AlwaysPerfectCatchToggle",
-    Callback = function(Value)
-        flags['alwaysperfectcatch'] = Value
-    end,
-})
-
 
 
 --// Teleport System
@@ -265,7 +256,7 @@ local function getIslandsFromWorld()
                 if islandFolder:IsA("Folder") then
                     local spawnPoint = islandFolder:FindFirstChild("spawn")
                     if spawnPoint and spawnPoint:IsA("BasePart") then
-                        islands[islandFolder.Name] = spawnPoint.Position + Vector3.new(0, 8, 0)
+                        islands[islandFolder.Name] = spawnPoint.Position + Vectr3.new(0, 8, 0)
                     end
                 end
             end
