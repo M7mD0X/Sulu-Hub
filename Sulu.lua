@@ -95,7 +95,7 @@ task.spawn(function()
             local rod = FindRod()
             if rod and rod:FindFirstChild("values") and rod.values:FindFirstChild("lure") then
                 if rod.values.lure.Value <= 0.001 then
-                    task.wait(0.3) -- Made it slightly faster
+                    task.wait(0.5) -- Made it slightly faster
                     rod.events.cast:FireServer(100, 1)
                 end
             end
@@ -111,12 +111,94 @@ task.spawn(function()
             end
         end
 
-        task.wait(0.1)
+        task.wait(0.2)
     end
 end)
 
+
+-- AutoFarm Zones System
+
+local selectedZone = nil
+local originalPosition = nil
+
+local function getFishingZones()
+    local zones = {}
+    local fishingZones = workspace:FindFirstChild("zones") and workspace.zones:FindFirstChild("fishing")
+    
+    if fishingZones then
+        for _, zone in pairs(fishingZones:GetChildren()) do
+            if zone:IsA("BasePart") then
+                zones[zone.Name] = zone.Position
+            end
+        end
+    end
+
+    return zones
+end
+
+local zones = getFishingZones()
+local zoneNames = {}
+for zoneName, _ in pairs(zones) do
+    table.insert(zoneNames, zoneName)
+end
+
+
 -- UI for Fishing
 FishingTab:CreateLabel("AutoFarm") -- Added label at the top
+
+FishingTab:CreateDropdown({
+    Name = "Select AutoFarm Zone",
+    Options = zoneNames,
+    CurrentOption = zoneNames[1] and {zoneNames[1]} or {},
+    MultipleOptions = false,
+    Flag = "AutoFarmZoneDropdown",
+    Callback = function(Options)
+        selectedZone = zones[Options[1]]
+    end,
+})
+
+FishingTab:CreateToggle({
+    Name = "AutoFarm Zones",
+    CurrentValue = false,
+    Flag = "AutoFarmZonesToggle",
+    Callback = function(Value)
+        local character = getchar()
+        local hrp = gethrp()
+
+        if Value then
+            if selectedZone then
+                originalPosition = hrp.Position -- Save player's position
+                hrp.CFrame = CFrame.new(selectedZone) -- Teleport to zone
+                
+                -- Freeze character by anchoring
+                hrp.Anchored = true 
+
+                -- Enable auto functions
+                flags['autoequiprod'] = true
+                flags['autocast'] = true
+                flags['autoshake'] = true
+                flags['autoreel'] = true
+            else
+                Rayfield:Notify({ Title = "Error", Content = "No zone selected!", Duration = 3 })
+            end
+        else
+            if originalPosition then
+                hrp.CFrame = CFrame.new(originalPosition) -- Teleport back
+            end
+
+            -- Unfreeze character
+            hrp.Anchored = false 
+
+            -- Disable auto functions
+            flags['autoequiprod'] = false
+            flags['autocast'] = false
+            flags['autoshake'] = false
+            flags['autoreel'] = false
+        end
+    end,
+})
+
+
 
 FishingTab:CreateLabel("Fishing Config") -- Added "Fishing Config" label
 FishingTab:CreateToggle({
