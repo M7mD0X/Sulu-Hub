@@ -106,7 +106,7 @@ task.spawn(function()
             if rod and rod:FindFirstChild("values") and rod.values:FindFirstChild("lure") then
                 if rod.values.lure.Value == 100 then
                     task.wait(0.3) -- Faster reeling
-                    ReplicatedStorage.events.reelfinished:FireServer(100, true)
+                    ReplicatedStorage.events.reelfinished:FireServer(100, flags['alwaysperfectcatch'] = Value)
                 end
             end
         end
@@ -182,9 +182,9 @@ FishingTab:CreateToggle({
                 Rayfield:Notify({ Title = "Error", Content = "No zone selected!", Duration = 3 })
             end
         else
-            --[[if originalPosition then
+            if originalPosition then
                 hrp.CFrame = CFrame.new(originalPosition) -- Teleport back
-            end]]
+            end
 
             -- Unfreeze character
             hrp.Anchored = false 
@@ -239,20 +239,11 @@ FishingTab:CreateToggle({
 })
 
 FishingTab:CreateToggle({
-    Name = "Perfect Cast",
+    Name = "Always Perfect Catch",
     CurrentValue = false,
-    Flag = "PerfectCastToggle",
+    Flag = "AlwaysPerfectCatchToggle",
     Callback = function(Value)
-        flags['perfectcast'] = Value
-    end,
-})
-
-FishingTab:CreateToggle({
-    Name = "Always Catch",
-    CurrentValue = false,
-    Flag = "AlwaysCatchToggle",
-    Callback = function(Value)
-        flags['alwayscatch'] = Value
+        flags['alwaysperfectcatch'] = Value
     end,
 })
 
