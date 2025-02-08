@@ -226,7 +226,8 @@ FishingTab:CreateToggle({
     end,
 })
 
-FishingTab:Creato Cast",
+FishingTab:CreateToggle({
+    Name = "Auto Cast",
     CurrentValue = false,
     Flag = "AutoCastToggle",
     Callback = function(Value)
