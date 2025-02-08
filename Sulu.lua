@@ -344,6 +344,48 @@ task.spawn(function()
 end)
 
 
+-- Infinite Oxygen Water
+CharacterTab:CreateToggle({
+    Name = "Infinite Oxygen (Water)",
+    CurrentValue = false,
+    Flag = "infoxygen",
+    Callback = function(Value)
+        flags['infoxygen'] = Value
+    end,
+})
+
+if flags['infoxygen'] then
+        if not deathcon then
+            deathcon = gethum().Died:Connect(function()
+                task.delay(9, function()
+                    if FindChildOfType(getchar(), 'DivingTank', 'Decal') then
+                        FindChildOfType(getchar(), 'DivingTank', 'Decal'):Destroy()
+                    end
+                    local oxygentank = Instance.new('Decal')
+                    oxygentank.Name = 'DivingTank'
+                    oxygentank.Parent = workspace
+                    oxygentank:SetAttribute('Tier', 1/0)
+                    oxygentank.Parent = getchar()
+                    deathcon = nil
+                end)
+            end)
+        end
+        if deathcon and gethum().Health > 0 then
+            if not getchar():FindFirstChild('DivingTank') then
+                local oxygentank = Instance.new('Decal')
+                oxygentank.Name = 'DivingTank'
+                oxygentank.Parent = workspace
+                oxygentank:SetAttribute('Tier', 1/0)
+                oxygentank.Parent = getchar()
+            end
+        end
+    else
+        if FindChildOfType(getchar(), 'DivingTank', 'Decal') then
+            FindChildOfType(getchar(), 'DivingTank', 'Decal'):Destroy()
+        end
+end
+
+
 
 --// Infinite Oxygen at Peaks System
 CharacterTab:CreateToggle({
