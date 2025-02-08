@@ -1,8 +1,12 @@
 -- Not released 
--- Load Rayfield UI Library
+
+
+--// Load Rayfield UI Library
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
--- Create Window
+
+
+--// Create Window
 local Window = Rayfield:CreateWindow({
    Name = "Sulu Hub",
    LoadingTitle = "Sulu Hub",
@@ -11,12 +15,17 @@ local Window = Rayfield:CreateWindow({
    KeySystem = false
 })
 
--- Create Tabs
+
+
+--// Create Tabs
 local FishingTab = Window:CreateTab("Fishing", nil) 
 local TeleportTab = Window:CreateTab("Teleport", nil)
 local CharacterTab = Window:CreateTab("Character", nil)
 
+
+
 --// Services & Variables
+
 local Players = cloneref(game:GetService('Players'))
 local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
 local RunService = cloneref(game:GetService('RunService'))
@@ -26,7 +35,10 @@ local lp = Players.LocalPlayer
 local flags = {autoshake = false, autocast = false, autoreel = false, nopeakssystems = false, autoequiprod = false}
 local selectedIsland = nil
 
+
+
 --// Helper Functions
+
 local function getchar()
     return lp.Character or lp.CharacterAdded:Wait()
 end
@@ -61,7 +73,10 @@ local function FindChildOfType(parent, name, class)
     return nil
 end
 
+
+
 --// Fishing Automation
+
 task.spawn(function()
     while true do
         if flags['autoshake'] then
@@ -117,7 +132,8 @@ task.spawn(function()
 end)
 
 
--- AutoFarm Zones System
+
+--// Zone Cast System
 
 local selectedZone = nil
 local originalPosition = nil
@@ -144,26 +160,72 @@ for zoneName, _ in pairs(zones) do
 end
 
 
--- UI for Fishing
-FishingTab:CreateLabel("AutoFarm") -- Added label at the top
+
+--// Auto Farm Events System
+
+local selectedZone = nil
+local originalPosition = nil
+
+local selectedEventZone = nil
+local originalEventPosition = nil
+
+-- Function to get all fishing zones
+local function getFishingZones()
+    local zones = {}
+    local fishingZones = workspace:FindFirstChild("zones") and workspace.zones:FindFirstChild("fishing")
+
+    if fishingZones then
+        for _, zone in pairs(fishingZones:GetChildren()) do
+            if zone:IsA("BasePart") then
+                zones[zone.Name] = zone.Position
+            end
+        end
+    end
+
+    return zones
+end
+
+local zones = getFishingZones()
+
+-- Sort zones alphabetically
+local zoneNames = {}
+for zoneName, _ in pairs(zones) do
+    table.insert(zoneNames, zoneName)
+end
+table.sort(zoneNames) -- Sorting alphabetically
+
+-- Define event zones (replace with your actual event zone names)
+local eventZoneNames = { "EventZone1", "EventZone2", "EventZone3" } -- Change these to your event zones
+local availableEventZones = {}
+
+-- Filter only available event zones
+for _, zoneName in pairs(eventZoneNames) do
+    if zones[zoneName] then
+        table.insert(availableEventZones, zoneName)
+    end
+end
+
+
+
+--// UI for Zone Cast
+
+FishingTab:CreateLabel("Zone Cast") -- Added label at the top
 
 FishingTab:CreateDropdown({
-    Name = "Select AutoFarm Zone",
+    Name = "Select Zone",
     Options = zoneNames,
     CurrentOption = zoneNames[1] and {zoneNames[1]} or {},
     MultipleOptions = false,
-    Flag = "AutoFarmZoneDropdown",
+    Flag = "ZoneCastdropdown",
     Callback = function(Options)
         selectedZone = zones[Options[1]]
     end,
 })
 
---- here
-
 FishingTab:CreateToggle({
-    Name = "AutoFarm Zones",
+    Name = "Zone Cast",
     CurrentValue = false,
-    Flag = "AutoFarmZonesToggle",
+    Flag = "ZoneCastToggle",
     Callback = function(Value)
         local character = getchar()
         local hrp = gethrp()
@@ -204,8 +266,76 @@ FishingTab:CreateToggle({
     end,
 })
 
---hete
 
+
+--// Event Cast Label / UIs
+
+FishingTab:CreateLabel("Events Farm") -- Added label for event zones
+
+FishingTab:CreateDropdown({
+    Name = "Select Event Zone",
+    Options = availableEventZones,
+    CurrentOption = availableEventZones[1] and {availableEventZones[1]} or {},
+    MultipleOptions = false,
+    Flag = "EventZoneDropdown",
+    Callback = function(Options)
+        selectedEventZone = zones[Options[1]]
+    end,
+})
+
+FishingTab:CreateToggle({
+    Name = "Auto Event Zone",
+    CurrentValue = false,
+    Flag = "AutoEventZoneToggle",
+    Callback = function(Value)
+        local character = getchar()
+        local hrp = gethrp()
+        local humanoid = gethum()
+
+        if Value then
+            -- Wait for the event zone to be available
+            while not selectedEventZone do
+                task.wait(1)
+                selectedEventZone = zones[Options[1]]
+            end
+
+            if selectedEventZone then
+                originalEventPosition = hrp.Position -- Save player's position
+                hrp.CFrame = CFrame.new(selectedEventZone + Vector3.new(0, 8, 0)) -- Teleport slightly above the event zone
+
+                -- Freeze character without anchoring
+                humanoid.PlatformStand = true 
+
+                -- Enable auto functions
+                flags['disableSwimming'] = true
+                flags['autoequiprod'] = true
+                flags['autocast'] = true
+                flags['autoshake'] = true
+                flags['autoreel'] = true
+            else
+                Rayfield:Notify({ Title = "Error", Content = "No event zone selected!", Duration = 3 })
+            end
+        else
+            if originalEventPosition then
+                hrp.CFrame = CFrame.new(originalEventPosition) -- Teleport back
+            end
+
+            -- Unfreeze character
+            humanoid.PlatformStand = false 
+
+            -- Disable auto functions
+            flags['disableSwimming'] = false
+            flags['autoequiprod'] = false
+            flags['autocast'] = false
+            flags['autoshake'] = false
+            flags['autoreel'] = false
+        end
+    end,
+})
+
+
+
+--// Fishing Config Label / UIs
 
 FishingTab:CreateLabel("Fishing Config") -- Added "Fishing Config" label
 FishingTab:CreateToggle({
@@ -247,6 +377,7 @@ FishingTab:CreateToggle({
 
 
 --// Teleport System
+
 local function getIslandsFromWorld()
     local islands = {}
     local worldFolder = workspace:FindFirstChild("world")
@@ -297,7 +428,7 @@ TeleportTab:CreateButton({
 
 
 
--- Disable Swimming System
+--// Disable Swimming System
 
 -- Add toggle flag
 flags['disableSwimming'] = false 
@@ -331,50 +462,9 @@ task.spawn(function()
 end)
 
 
--- Infinite Oxygen Water
-CharacterTab:CreateToggle({
-    Name = "Infinite Oxygen (Water)",
-    CurrentValue = false,
-    Flag = "infoxygen",
-    Callback = function(Value)
-        flags['infoxygen'] = Value
-    end,
-})
-
-if flags['infoxygen'] then
-        if not deathcon then
-            deathcon = gethum().Died:Connect(function()
-                task.delay(9, function()
-                    if FindChildOfType(getchar(), 'DivingTank', 'Decal') then
-                        FindChildOfType(getchar(), 'DivingTank', 'Decal'):Destroy()
-                    end
-                    local oxygentank = Instance.new('Decal')
-                    oxygentank.Name = 'DivingTank'
-                    oxygentank.Parent = workspace
-                    oxygentank:SetAttribute('Tier', 1/0)
-                    oxygentank.Parent = getchar()
-                    deathcon = nil
-                end)
-            end)
-        end
-        if deathcon and gethum().Health > 0 then
-            if not getchar():FindFirstChild('DivingTank') then
-                local oxygentank = Instance.new('Decal')
-                oxygentank.Name = 'DivingTank'
-                oxygentank.Parent = workspace
-                oxygentank:SetAttribute('Tier', 1/0)
-                oxygentank.Parent = getchar()
-            end
-        end
-    else
-        if FindChildOfType(getchar(), 'DivingTank', 'Decal') then
-            FindChildOfType(getchar(), 'DivingTank', 'Decal'):Destroy()
-        end
-end
-
-
 
 --// Infinite Oxygen at Peaks System
+
 CharacterTab:CreateToggle({
     Name = "Infinite Oxygen at Peaks",
     CurrentValue = false,
