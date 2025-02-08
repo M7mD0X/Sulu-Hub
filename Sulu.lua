@@ -157,6 +157,8 @@ FishingTab:CreateDropdown({
     end,
 })
 
+--- here
+
 FishingTab:CreateToggle({
     Name = "AutoFarm Zones",
     CurrentValue = false,
@@ -164,13 +166,15 @@ FishingTab:CreateToggle({
     Callback = function(Value)
         local character = getchar()
         local hrp = gethrp()
+        local humanoid = gethum()
 
         if Value then
             if selectedZone then
                 originalPosition = hrp.Position -- Save player's position
-                hrp.CFrame = CFrame.new(selectedZone) -- Teleport to zone
-                -- Freeze character by anchoring
-                hrp.Anchored = true 
+                hrp.CFrame = CFrame.new(selectedZone + Vector3.new(0, 8, 0)) -- Teleport slightly above the zone
+
+                -- Freeze character without anchoring
+                humanoid.PlatformStand = true 
 
                 -- Enable auto functions
                 flags['disableSwimming'] = true
@@ -187,7 +191,7 @@ FishingTab:CreateToggle({
             end
 
             -- Unfreeze character
-            hrp.Anchored = false 
+            humanoid.PlatformStand = false 
 
             -- Disable auto functions
             flags['disableSwimming'] = false
@@ -199,6 +203,7 @@ FishingTab:CreateToggle({
     end,
 })
 
+--hete
 
 
 FishingTab:CreateLabel("Fishing Config") -- Added "Fishing Config" label
@@ -220,8 +225,7 @@ FishingTab:CreateToggle({
     end,
 })
 
-FishingTab:CreateToggle({
-    Name = "Auto Cast",
+FishingTab:Creato Cast",
     CurrentValue = false,
     Flag = "AutoCastToggle",
     Callback = function(Value)
