@@ -106,13 +106,13 @@ task.spawn(function()
             local rod = FindRod()
             if rod and rod:FindFirstChild("values") and rod.values:FindFirstChild("lure") then
                 if rod.values.lure.Value == 100 then
-                    task.wait(0.3) -- Faster reeling
+                    task.wait(0.5) -- Faster reeling
                     ReplicatedStorage.events.reelfinished:FireServer(100, true)
                 end
             end
         end
 
-        task.wait(0.15)
+        task.wait(0.2)
     end
 end)
 
