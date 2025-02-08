@@ -170,7 +170,7 @@ FishingTab:CreateToggle({
                 local hrp = gethrp() -- get humanoidRootPart
                 originalPosition = hrp.Position -- Save player's position
                 hrp.CFrame = CFrame.new(selectedZone) -- Teleport to zone
-                hrp.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + 50, hrp.Position.Z) -- Move up by 8 -- TEsT hhhhhhh
+                hrp.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + 8, hrp.Position.Z) -- Move up by 8 -- TEsT hhhhhhh
                 -- Freeze character by anchoring
                 hrp.Anchored = true 
 
