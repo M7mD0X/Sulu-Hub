@@ -111,7 +111,7 @@ task.spawn(function()
             end
         end
 
-        task.wait(0.2)
+        task.wait(0.15)
     end
 end)
 
@@ -167,9 +167,10 @@ FishingTab:CreateToggle({
 
         if Value then
             if selectedZone then
+                local hrp = gethrp() -- get humanoidRootPart
                 originalPosition = hrp.Position -- Save player's position
                 hrp.CFrame = CFrame.new(selectedZone) -- Teleport to zone
-                
+                hrp.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + 50, hrp.Position.Z) -- Move up by 8 -- TEsT hhhhhhh
                 -- Freeze character by anchoring
                 hrp.Anchored = true 
 
