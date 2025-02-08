@@ -174,6 +174,7 @@ FishingTab:CreateToggle({
                 hrp.Anchored = true 
 
                 -- Enable auto functions
+                flags['disableSwimming'] = true
                 flags['autoequiprod'] = true
                 flags['autocast'] = true
                 flags['autoshake'] = true
@@ -190,6 +191,7 @@ FishingTab:CreateToggle({
             hrp.Anchored = false 
 
             -- Disable auto functions
+            flags['disableSwimming'] = false
             flags['autoequiprod'] = false
             flags['autocast'] = false
             flags['autoshake'] = false
@@ -255,6 +257,8 @@ FishingTab:CreateToggle({
     end,
 })
 
+
+
 --// Teleport System
 local function getIslandsFromWorld()
     local islands = {}
@@ -303,6 +307,43 @@ TeleportTab:CreateButton({
         end
     end
 })
+
+
+
+-- Disable Swimming System
+
+-- Add toggle flag
+flags['disableSwimming'] = false 
+-- Create Toggle in Character Tab
+CharacterTab:CreateToggle({
+    Name = "Disable Swimming",
+    CurrentValue = false,
+    Flag = "DisableSwimmingToggle",
+    Callback = function(Value)
+        flags['disableSwimming'] = Value
+    end,
+})
+
+
+-- Disable Swimming System (Make Water Act Like Ground)
+task.spawn(function()
+    while true do
+        if flags['disableSwimming'] then
+            local humanoid = gethum()
+            if humanoid then
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Swimming, false)
+            end
+        else
+            local humanoid = gethum()
+            if humanoid then
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Swimming, true)
+            end
+        end
+        task.wait(0.1)
+    end
+end)
+
+
 
 --// Infinite Oxygen at Peaks System
 CharacterTab:CreateToggle({
