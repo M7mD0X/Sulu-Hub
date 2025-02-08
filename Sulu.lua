@@ -16,36 +16,29 @@ local TeleportTab = Window:CreateTab("Teleport", nil)
 local CharacterTab = Window:CreateTab("Character", nil)
 
 --// Services & Variables
-local Players = game:GetService('Players')
-local ReplicatedStorage = game:GetService('ReplicatedStorage')
-local RunService = game:GetService('RunService')
-local GuiService = game:GetService('GuiService')
+local Players = cloneref(game:GetService('Players'))
+local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
+local RunService = cloneref(game:GetService('RunService'))
+local GuiService = cloneref(game:GetService('GuiService'))
 
 local lp = Players.LocalPlayer
-local flags = {autoshake = false, autocast = false, autoreel = false, infoxygen = false, noafk = false, perfectcast = false, alwayscatch = false}
-local walkSpeedEnabled = false
-local jumpPowerEnabled = false
-local gravityEnabled = false
-local walkSpeed = 16
-local jumpPower = 50
-local gravity = 196.2
-local deathcon = nil
-local selectedZone = nil
+local flags = {autoshake = false, autocast = false, autoreel = false, nopeakssystems = false, autoequiprod = false}
+local selectedIsland = nil
 
 --// Helper Functions
-getchar = function()
+local function getchar()
     return lp.Character or lp.CharacterAdded:Wait()
 end
 
-gethrp = function()
+local function gethrp()
     return getchar():WaitForChild('HumanoidRootPart')
 end
 
-gethum = function()
+local function gethum()
     return getchar():WaitForChild('Humanoid')
 end
 
-FindRod = function()
+local function FindRod()
     local char = getchar()
     if char then
         local tool = char:FindFirstChildOfClass('Tool')
@@ -56,7 +49,7 @@ FindRod = function()
     return nil
 end
 
-FindChildOfType = function(parent, name, class)
+local function FindChildOfType(parent, name, class)
     if parent then
         for _, child in pairs(parent:GetChildren()) do
             if child:IsA(class) and child.Name == name then
@@ -87,11 +80,22 @@ task.spawn(function()
             end
         end
 
+        if flags['autoequiprod'] then
+            if not FindRod() then
+                for _, tool in pairs(lp.Backpack:GetChildren()) do
+                    if tool:IsA("Tool") and tool:FindFirstChild("values") then
+                        lp.Character.Humanoid:EquipTool(tool)
+                        break
+                    end
+                end
+            end
+        end
+
         if flags['autocast'] then
             local rod = FindRod()
             if rod and rod:FindFirstChild("values") and rod.values:FindFirstChild("lure") then
                 if rod.values.lure.Value <= 0.001 then
-                    task.wait(0.5)
+                    task.wait(0.3) -- Made it slightly faster
                     rod.events.cast:FireServer(100, 1)
                 end
             end
@@ -101,7 +105,7 @@ task.spawn(function()
             local rod = FindRod()
             if rod and rod:FindFirstChild("values") and rod.values:FindFirstChild("lure") then
                 if rod.values.lure.Value == 100 then
-                    task.wait(0.5)
+                    task.wait(0.3) -- Faster reeling
                     ReplicatedStorage.events.reelfinished:FireServer(100, true)
                 end
             end
@@ -112,6 +116,18 @@ task.spawn(function()
 end)
 
 -- UI for Fishing
+FishingTab:CreateLabel("AutoFarm") -- Added label at the top
+
+FishingTab:CreateLabel("Fishing Config") -- Added "Fishing Config" label
+FishingTab:CreateToggle({
+    Name = "Auto Equip Rod",
+    CurrentValue = false,
+    Flag = "AutoEquipRod",
+    Callback = function(Value)
+        flags['autoequiprod'] = Value
+    end,
+})
+
 FishingTab:CreateToggle({
     Name = "Auto Shake",
     CurrentValue = false,
@@ -139,194 +155,92 @@ FishingTab:CreateToggle({
     end,
 })
 
--- Add Auto Equip Rod toggle under Fishing Config
 FishingTab:CreateToggle({
-    Name = "Auto Equip Rod",
+    Name = "Perfect Cast",
     CurrentValue = false,
-    Flag = "AutoEquipRodToggle",
+    Flag = "PerfectCastToggle",
     Callback = function(Value)
-        -- Equip the rod if the toggle is on
-        if Value then
-            local rod = FindRod()
-            if rod then
-                rod.Parent = getchar()  -- Equip the rod to the character
-            end
-        else
-            -- Optional: You can unequip the rod if needed
-            local rod = FindRod()
-            if rod then
-                rod.Parent = nil  -- Unequip the rod
-            end
-        end
+        flags['perfectcast'] = Value
     end,
 })
 
--- Add label "Fishing Config"
-FishingTab:CreateLabel("Fishing Config")
+FishingTab:CreateToggle({
+    Name = "Always Catch",
+    CurrentValue = false,
+    Flag = "AlwaysCatchToggle",
+    Callback = function(Value)
+        flags['alwayscatch'] = Value
+    end,
+})
 
--- Add the AutoFarm section
-FishingTab:CreateLabel("AutoFarm")
+--// Teleport System
+local function getIslandsFromWorld()
+    local islands = {}
+    local worldFolder = workspace:FindFirstChild("world")
 
--- Dropdown for fishing zones (update it dynamically)
-local ZoneDropdown
-ZoneDropdown = FishingTab:CreateDropdown({
-   Name = "Select Zone",
-   Options = {},  -- Empty initially
-   CurrentOption = {},
+    if worldFolder then
+        local spawnsFolder = worldFolder:FindFirstChild("spawns")
+        if spawnsFolder then
+            for _, islandFolder in pairs(spawnsFolder:GetChildren()) do
+                if islandFolder:IsA("Folder") then
+                    local spawnPoint = islandFolder:FindFirstChild("spawn")
+                    if spawnPoint and spawnPoint:IsA("BasePart") then
+                        islands[islandFolder.Name] = spawnPoint.Position + Vector3.new(0, 8, 0)
+                    end
+                end
+            end
+        end
+    end
+    return islands
+end
+
+local islands = getIslandsFromWorld()
+local islandNames = {}
+for islandName, _ in pairs(islands) do
+    table.insert(islandNames, islandName)
+end
+
+TeleportTab:CreateDropdown({
+   Name = "Select Island",
+   Options = islandNames,
+   CurrentOption = islandNames[1] and {islandNames[1]} or {},
    MultipleOptions = false,
-   Flag = "ZoneDropdown",
+   Flag = "IslandDropdown",
    Callback = function(Options)
-      selectedZone = Options[1]
-      print("Selected Zone: " .. selectedZone)  -- Debugging line
+      selectedIsland = islands[Options[1]]
    end,
 })
 
--- Fetch all unique fishing zones
-local function updateZonesDropdown()
-    local zones = {}
-    local fishingZonesFolder = workspace:FindFirstChild("zones") and workspace.zones:FindFirstChild("fishing")
-    
-    if fishingZonesFolder then
-        for _, zone in pairs(fishingZonesFolder:GetChildren()) do
-            if zone:IsA('Model') and not table.find(zones, zone.Name) then
-                table.insert(zones, zone.Name)
-            end
-        end
-    end
-    
-    if #zones > 0 then
-        -- Set dropdown options correctly
-        ZoneDropdown:SetOptions(zones)
-    else
-        print("No fishing zones found!") -- Debugging message
-    end
-end
-
--- Call updateZonesDropdown after a short delay to ensure workspace loads
-task.wait(1)
-updateZonesDropdown()
-
--- AutoFarm toggle functionality
-FishingTab:CreateToggle({
-    Name = "Enable AutoFarm Zones",
-    CurrentValue = false,
-    Flag = "AutoFarmToggle",
-    Callback = function(Value)
-        if Value then
-            -- Enable AutoFarm: Teleport, Auto Equip Rod, Auto Cast, Auto Shake, Auto Reel, Freeze Character
-            local zone = selectedZone  -- Zone selected from the dropdown
-            if zone then
-                -- Teleport player to selected zone
-                local zonePos = workspace.zones.fishing[zone].Position
-                lp.Character:MoveTo(zonePos)
-                
-                -- Enable Auto Equip Rod, Auto Cast, Auto Shake, Auto Reel
-                flags['autocast'] = true
-                flags['autoshake'] = true
-                flags['autoreel'] = true
-                
-                -- Freeze Character (Disable movement)
-                gethum().PlatformStand = true
-            end
+TeleportTab:CreateButton({
+    Name = "Teleport to Selected Island",
+    Callback = function()
+        if selectedIsland and lp.Character then
+            lp.Character:MoveTo(selectedIsland)
         else
-            -- Disable AutoFarm: Disable all auto functions, Teleport back to island, Unfreeze character
-            flags['autocast'] = false
-            flags['autoshake'] = false
-            flags['autoreel'] = false
-            -- Teleport back to the island
-            lp.Character:MoveTo(workspace.zones.fishing.Island1.Position)
-            
-            -- Unfreeze character (Enable movement)
-            gethum().PlatformStand = false
-        end
-    end,
-})
-
--- Teleport Tab functionality (fetch spawns dynamically)
-local teleportDropdown
-teleportDropdown = TeleportTab:CreateDropdown({
-    Name = "Teleport to",
-    Options = {},  -- Empty initially
-    CurrentOption = "Island1",
-    Flag = "TeleportDropdown",
-    Callback = function(Options)
-        local selectedLocation = Options[1]
-        local target = workspace.world.spawns:FindFirstChild(selectedLocation)
-        
-        if target then
-            lp.Character:MoveTo(target.Position)
-        end
-    end,
-})
-
--- Fetch spawn points dynamically
-local function updateTeleportDropdown()
-    local spawnPoints = {}
-    local spawnsFolder = workspace.world:FindFirstChild("spawns")
-    
-    if spawnsFolder then
-        for _, spawn in pairs(spawnsFolder:GetChildren()) do
-            if spawn:IsA('Model') and not table.find(spawnPoints, spawn.Name) then
-                table.insert(spawnPoints, spawn.Name)
-            end
+            Rayfield:Notify({ Title = "Error", Content = "No island selected!", Duration = 3 })
         end
     end
-    
-    if #spawnPoints > 0 then
-        -- Set dropdown options correctly
-        teleportDropdown:SetOptions(spawnPoints)
-    else
-        print("No spawn points found!") -- Debugging message
-    end
-end
+})
 
--- Call updateTeleportDropdown after a short delay to ensure workspace loads
-task.wait(1)
-updateTeleportDropdown()
-
--- Add Infinite Oxygen at Peaks functionality in Character Tab
+--// Infinite Oxygen at Peaks System
 CharacterTab:CreateToggle({
     Name = "Infinite Oxygen at Peaks",
     CurrentValue = false,
-    Flag = "InfiniteOxygenAtPeaks",
+    Flag = "NoPeaksSystems",
     Callback = function(Value)
-        flags['infoxygen'] = Value
+        flags['nopeakssystems'] = Value
     end,
 })
 
--- Infinite Oxygen at Peaks script
 task.spawn(function()
     while true do
-        if flags['infoxygen'] then
-            if not deathcon then
-                deathcon = gethum().Died:Connect(function()
-                    task.delay(9, function()
-                        if FindChildOfType(getchar(), 'DivingTank', 'Decal') then
-                            FindChildOfType(getchar(), 'DivingTank', 'Decal'):Destroy()
-                        end
-                        local oxygentank = Instance.new('Decal')
-                        oxygentank.Name = 'DivingTank'
-                        oxygentank.Parent = workspace
-                        oxygentank:SetAttribute('Tier', 1/0)
-                        oxygentank.Parent = getchar()
-                        deathcon = nil
-                    end)
-                end)
-            end
-            if deathcon and gethum().Health > 0 then
-                if not getchar():FindFirstChild('DivingTank') then
-                    local oxygentank = Instance.new('Decal')
-                    oxygentank.Name = 'DivingTank'
-                    oxygentank.Parent = workspace
-                    oxygentank:SetAttribute('Tier', 1/0)
-                    oxygentank.Parent = getchar()
-                end
-            end
+        if flags['nopeakssystems'] then
+            getchar():SetAttribute('WinterCloakEquipped', true)
+            getchar():SetAttribute('Refill', true)
         else
-            if FindChildOfType(getchar(), 'DivingTank', 'Decal') then
-                FindChildOfType(getchar(), 'DivingTank', 'Decal'):Destroy()
-            end
+            getchar():SetAttribute('WinterCloakEquipped', nil)
+            getchar():SetAttribute('Refill', false)
         end
-        task.wait(1)
+        task.wait(0.1)
     end
 end)
