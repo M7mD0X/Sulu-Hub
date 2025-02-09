@@ -77,58 +77,46 @@ end
 
 --// Fishing Automation
 
-task.spawn(function()
-    while true do
-        if flags['autoshake'] then
-            local shakeUI = lp.PlayerGui:FindFirstChild('shakeui')
-            if shakeUI then
-                local safeZone = shakeUI:FindFirstChild('safezone')
-                if safeZone then
-                    local button = safeZone:FindFirstChild('button')
-                    if button then
-                        GuiService.SelectedObject = button
-                        if GuiService.SelectedObject == button then
-                            game:GetService('VirtualInputManager'):SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-                            game:GetService('VirtualInputManager'):SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-                        end
-                    end
+
+RunService.Heartbeat:Connect(function()
+    -- Autofarm
+    if flags['autoequiprod'] then
+        if not FindRod() then
+            for _, tool in pairs(lp.Backpack:GetChildren()) do
+                if tool:IsA("Tool") and tool:FindFirstChild("values") then
+                    lp.Character.Humanoid:EquipTool(tool)
+                    break
                 end
             end
         end
-
-        if flags['autoequiprod'] then
-            if not FindRod() then
-                for _, tool in pairs(lp.Backpack:GetChildren()) do
-                    if tool:IsA("Tool") and tool:FindFirstChild("values") then
-                        lp.Character.Humanoid:EquipTool(tool)
-                        break
-                    end
-                end
-            end
-        end
-
-        if flags['autocast'] then
-            local rod = FindRod()
-            if rod and rod:FindFirstChild("values") and rod.values:FindFirstChild("lure") then
-                if rod.values.lure.Value <= 0.001 then
-                    task.wait(0.6) -- Made it slightly faster
-                    rod.events.cast:FireServer(100, 1)
-                end
-            end
-        end
-
-        if flags['autoreel'] then
-            local rod = FindRod()
-            if rod and rod:FindFirstChild("values") and rod.values:FindFirstChild("lure") then
-                if rod.values.lure.Value == 100 then
-                    task.wait(0.5) -- Faster reeling
-                    ReplicatedStorage.events.reelfinished:FireServer(100, true)
-                end
-            end
-        end
-
-        task.wait(0.3)
     end
+ 
+    if flags['autoshake'] then
+        if FindChild(lp.PlayerGui, 'shakeui') and FindChild(lp.PlayerGui['shakeui'], 'safezone') and FindChild(lp.PlayerGui['shakeui']['safezone'], 'button') then
+            GuiService.SelectedObject = lp.PlayerGui['shakeui']['safezone']['button']
+            if GuiService.SelectedObject == lp.PlayerGui['shakeui']['safezone']['button'] then
+                game:GetService('VirtualInputManager'):SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+                game:GetService('VirtualInputManager'):SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+            end
+        end
+    end
+    if flags['autocast'] then
+        local rod = FindRod()
+        if rod ~= nil and rod['values']['lure'].Value <= .001 and task.wait(.5) then
+            rod.events.cast:FireServer(100, 1)
+        end
+    end
+    if flags['autoreel'] then
+        if flags['autoreelmode'] == 'Limited Blatant' then
+            local rod = FindRod()
+            if rod ~= nil and rod['values']['lure'].Value == 100 and task.wait(math.random(10, 20)/10) then
+                task.delay(math.random(10, 25)/10, function()
+                    ReplicatedStorage.events.reelfinished:FireServer(100, (math.random(1,2) == 1 and true or false))
+                end)
+            end
+        end
+    end
+
 end)
 
 
