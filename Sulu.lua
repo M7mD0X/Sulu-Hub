@@ -506,13 +506,19 @@ local TpTotemLocations = {
 
 local selectedTotemLocation = nil
 
+-- Extract location names (keys) into a table
+local locationNames = {}
+for name, _ in pairs(TpTotemLocations) do
+    table.insert(locationNames, name)
+end
+
 -- UI: Teleport Section
 TeleportTab:CreateLabel("Teleport To Totem") -- Label for teleport UI
 
 -- Create Dropdown
 TeleportTab:CreateDropdown({
     Name = "Select Teleport Location",
-    Options = table.keys(TpTotemLocations), -- List of locations
+    Options = locationNames, -- Corrected way to list locations
     CurrentOption = {},
     MultipleOptions = false,
     Flag = "TeleportTotemDropdown",
