@@ -498,10 +498,17 @@ TeleportTab:CreateButton({
 
 -- Define teleport locations
 local TpTotemLocations = {
-    ["Sundial Totem"] = Vector3.new(0, 5, 0),
-    ["totem1"] = Vector3.new(100, 10, 200),
-    ["totem2"] = Vector3.new(-50, 8, 75),
-    ["totem3"] = Vector3.new(300, 5, -100),
+    ["Sundial Totem"] = Vector3.new(-1149.45605, 134.531998, -1077.27502),
+    ["Windset Totem"] = Vector3.new(2851.60205, 178.119995, 2703.03296),
+    ["Smokescreen Totem"] = Vector3.new(2791.71191, 137.350998, -629.452026),
+    ["Metor Totem"] = Vector3.new(-1946.22998, 272.911011, 232.078003),
+    ["Zeus Storm Totem"] = Vector3.new(-4326.10889, -629.97699, 2686.59204),
+    ["Poseidon Wrath Totem"] = Vector3.new(-3953.21289, -556.47699, 852.85199),
+    ["Eclipse Totem"] = Vector3.new(5967.2832, 272.290009, 836.903015),
+    ["Blizzard Totem"] = Vector3.new(20148.748, 740.133972, 5803.66113),
+    ["Avalanche Totem"] = Vector3.new(19708.2539, 464.812012, 6058.12695),
+    ["Tempest Totem"] = Vector3.new(36.4309998, 133.031006, 1946.11096),
+    ["Aurora Totem"] = Vector3.new(-1813.20496, -139.332001, -3280.39893),
 }
 
 local selectedTotemLocation = nil
