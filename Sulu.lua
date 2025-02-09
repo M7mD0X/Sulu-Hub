@@ -111,7 +111,7 @@ task.spawn(function()
             local rod = FindRod()
             if rod and rod:FindFirstChild("values") and rod.values:FindFirstChild("lure") then
                 if rod.values.lure.Value <= 0.001 then
-                    task.wait(0.5) -- Made it slightly faster
+                    task.wait(0.6) -- Made it slightly faster
                     rod.events.cast:FireServer(100, 1)
                 end
             end
@@ -127,7 +127,7 @@ task.spawn(function()
             end
         end
 
-        task.wait(0.2)
+        task.wait(0.3)
     end
 end)
 
@@ -195,7 +195,7 @@ end
 table.sort(zoneNames) -- Sorting alphabetically
 
 -- Define event zones (replace with your actual event zone names)
-local eventZoneNames = { "EventZone1", "EventZone2", "EventZone3" } -- Change these to your event zones
+local eventZoneNames = { "EventZone1", "EventZone2", "EventZone3", "EventZone4", "EventZone5", "EventZone6" } -- Change these to your event zones
 local availableEventZones = {}
 
 -- Filter only available event zones
