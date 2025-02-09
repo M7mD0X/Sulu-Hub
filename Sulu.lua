@@ -270,8 +270,36 @@ FishingTab:CreateToggle({
 
 --// Event Cast Label / UIs
 
-FishingTab:CreateLabel("Events Farm") -- Added label for event zones
+FishingTab:CreateLabel("Events Farm") -- Label for event zones
 
+-- Available Events Label
+local function getAvailableEventZones()
+    local availableEvents = {}
+    for _, zoneName in pairs(eventZoneNames) do
+        if zones[zoneName] then
+            table.insert(availableEvents, zoneName)
+        end
+    end
+    return availableEvents
+end
+
+local function updateEventLabel()
+    local availableEvents = getAvailableEventZones()
+    local labelText = #availableEvents > 0 and "Available Events: " .. table.concat(availableEvents, ", ") or "No Events Available"
+    eventLabel:Set(labelText) -- Update label text
+end
+
+local eventLabel = FishingTab:CreateLabel("Checking for events...") -- Default text
+
+-- Update label every few seconds
+task.spawn(function()
+    while true do
+        updateEventLabel()
+        task.wait(5) -- Update every 5 seconds
+    end
+end)
+
+-- Event Zone Dropdown
 FishingTab:CreateDropdown({
     Name = "Select Event Zone",
     Options = availableEventZones,
@@ -283,6 +311,7 @@ FishingTab:CreateDropdown({
     end,
 })
 
+-- Auto Event Zone Toggle
 FishingTab:CreateToggle({
     Name = "Auto Event Zone",
     CurrentValue = false,
