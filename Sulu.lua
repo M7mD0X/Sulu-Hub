@@ -461,6 +461,8 @@ for islandName, _ in pairs(islands) do
     table.insert(islandNames, islandName)
 end
 
+TeleportTab:CreateLabel("Teleport To Locations") -- Label for teleport UI
+
 TeleportTab:CreateDropdown({
    Name = "Select Island",
    Options = islandNames,
@@ -481,6 +483,53 @@ TeleportTab:CreateButton({
             Rayfield:Notify({ Title = "Error", Content = "No island selected!", Duration = 3 })
         end
     end
+})
+
+
+
+--// Teleport To Totems
+
+-- Define teleport locations
+local TpTotemLocations = {
+    ["Sundial Totem"] = Vector3.new(0, 5, 0),
+    ["totem1"] = Vector3.new(100, 10, 200),
+    ["totem2"] = Vector3.new(-50, 8, 75),
+    ["totem3"] = Vector3.new(300, 5, -100),
+}
+
+local selectedTotemLocation = nil
+
+-- UI: Teleport Section
+TeleportTab:CreateLabel("Teleport To Totem") -- Label for teleport UI
+
+-- Create Dropdown
+local teleportTotemDropdown = TeleportTab:CreateDropdown({
+    Name = "Select Teleport Location",
+    Options = table.keys(TpTotemLocations), -- List of locations
+    CurrentOption = {},
+    MultipleOptions = false,
+    Flag = "TeleportTotemDropdown",
+    Callback = function(Options)
+        selectedTotemLocation = TpTotemLocations[Options[1]]
+    end,
+})
+
+-- Create Teleport Button
+TeleportTab:CreateButton({
+    Name = "Teleport To Totem",
+    Callback = function()
+        if selectedTotemLocation then
+            local hrp = gethrp()
+            if hrp then
+                hrp.CFrame = CFrame.new(selectedTotemLocation + Vector3.new(0, 5, 0)) -- Offset Y to prevent stuck
+                Rayfield:Notify({ Title = "Teleported", Content = "You have teleported successfully!", Duration = 3 })
+            else
+                Rayfield:Notify({ Title = "Error", Content = "Character not found!", Duration = 3 })
+            end
+        else
+            Rayfield:Notify({ Title = "Error", Content = "No location selected!", Duration = 3 })
+        end
+    end,
 })
 
 
