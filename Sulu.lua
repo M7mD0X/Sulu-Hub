@@ -503,7 +503,7 @@ local selectedTotemLocation = nil
 TeleportTab:CreateLabel("Teleport To Totem") -- Label for teleport UI
 
 -- Create Dropdown
-local teleportTotemDropdown = TeleportTab:CreateDropdown({
+TeleportTab:CreateDropdown({
     Name = "Select Teleport Location",
     Options = table.keys(TpTotemLocations), -- List of locations
     CurrentOption = {},
