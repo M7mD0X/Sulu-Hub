@@ -207,6 +207,34 @@ end
 
 
 
+--// Refresh Zones/Events System
+
+task.spawn(function()
+    while true do
+        -- Refresh zones data
+        zones = getFishingZones()
+        availableEvents = getAvailableEventZones()
+
+        -- Refresh AutoFarm Zone Dropdown
+        local updatedZoneNames = {}
+        for zoneName, _ in pairs(zones) do
+            table.insert(updatedZoneNames, zoneName)
+        end
+        table.sort(updatedZoneNames)
+
+        if autoFarmZoneDropdown then
+            autoFarmZoneDropdown:SetOptions(updatedZoneNames)
+        end
+
+        -- Refresh Event Zone Dropdown
+        if eventDropdown then
+            eventDropdown:SetOptions(availableEvents)
+        end
+    end
+end)
+
+
+
 --// UI for Zone Cast
 
 FishingTab:CreateLabel("Zone Cast") -- Added label at the top
@@ -216,7 +244,7 @@ FishingTab:CreateDropdown({
     Options = zoneNames,
     CurrentOption = zoneNames[1] and {zoneNames[1]} or {},
     MultipleOptions = false,
-    Flag = "ZoneCastdropdown",
+    Flag = "autoFarmZoneDropdown",
     Callback = function(Options)
         selectedZone = zones[Options[1]]
     end,
@@ -305,7 +333,7 @@ FishingTab:CreateDropdown({
     Options = availableEventZones,
     CurrentOption = availableEventZones[1] and {availableEventZones[1]} or {},
     MultipleOptions = false,
-    Flag = "EventZoneDropdown",
+    Flag = "eventDropdown",
     Callback = function(Options)
         selectedEventZone = zones[Options[1]]
     end,
