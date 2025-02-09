@@ -131,7 +131,7 @@ task.spawn(function()
     end
 end)
 
-
+--[[  Old zone/event cast
 
 --// Zone Cast System
 
@@ -218,7 +218,7 @@ FishingTab:CreateDropdown({
     MultipleOptions = false,
     Flag = "ZoneCastdropdown",
     Callback = function(Options)
-        selectedZone = zones[Options[1]]
+        selectedZone = zones[Options[1] ]
     end,
 })
 
@@ -307,7 +307,7 @@ FishingTab:CreateDropdown({
     MultipleOptions = false,
     Flag = "EventZoneDropdown",
     Callback = function(Options)
-        selectedEventZone = zones[Options[1]]
+        selectedEventZone = zones[Options[1] ]
     end,
 })
 
@@ -325,7 +325,7 @@ FishingTab:CreateToggle({
             -- Wait for the event zone to be available
             while not selectedEventZone do
                 task.wait(1)
-                selectedEventZone = zones[Options[1]]
+                selectedEventZone = zones[Options[1] ]
             end
 
             if selectedEventZone then
@@ -361,6 +361,229 @@ FishingTab:CreateToggle({
         end
     end,
 })
+
+  Old Code end here  ]]
+
+
+
+--- start here
+
+
+--// AutoFarm & Auto Event System
+
+local selectedZone = nil
+local originalPosition = nil
+
+local selectedEventZone = nil
+local originalEventPosition = nil
+
+local function getFishingZones()
+    local zones = {}
+    local fishingZones = workspace:FindFirstChild("zones") and workspace.zones:FindFirstChild("fishing")
+
+    if fishingZones then
+        for _, zone in pairs(fishingZones:GetChildren()) do
+            if zone:IsA("BasePart") then
+                zones[zone.Name] = zone.Position
+            end
+        end
+    end
+
+    return zones
+end
+
+local eventZoneNames = { "EventZone1", "EventZone2", "Isonade" } -- Add real event zones here
+
+local function getAvailableEventZones()
+    local availableEvents = {}
+    for _, zoneName in pairs(eventZoneNames) do
+        if zones[zoneName] then
+            table.insert(availableEvents, zoneName)
+        end
+    end
+    return availableEvents
+end
+
+local zones = getFishingZones()
+local availableEvents = getAvailableEventZones()
+
+-- Sort AutoFarm zones
+local zoneNames = {}
+for zoneName, _ in pairs(zones) do
+    table.insert(zoneNames, zoneName)
+end
+table.sort(zoneNames)
+
+
+
+
+--// UI Creation
+
+FishingTab:CreateLabel("AutoFarm") -- AutoFarm Label
+
+local autoFarmDropdown = FishingTab:CreateDropdown({
+    Name = "Select AutoFarm Zone",
+    Options = zoneNames,
+    CurrentOption = zoneNames[1] and {zoneNames[1]} or {},
+    MultipleOptions = false,
+    Flag = "AutoFarmZoneDropdown",
+    Callback = function(Options)
+        selectedZone = zones[Options[1]]
+    end,
+})
+
+FishingTab:CreateToggle({
+    Name = "AutoFarm Zones",
+    CurrentValue = false,
+    Flag = "AutoFarmZonesToggle",
+    Callback = function(Value)
+        local character = getchar()
+        local hrp = gethrp()
+        local humanoid = gethum()
+
+        if Value then
+            if selectedZone then
+                originalPosition = hrp.Position
+                hrp.CFrame = CFrame.new(selectedZone + Vector3.new(0, 8, 0)) -- Teleport above zone
+
+                -- Freeze without anchoring
+                humanoid.PlatformStand = true 
+
+                -- Enable auto functions
+                flags['disableSwimming'] = true
+                flags['autoequiprod'] = true
+                flags['autocast'] = true
+                flags['autoshake'] = true
+                flags['autoreel'] = true
+            else
+                Rayfield:Notify({ Title = "Error", Content = "No zone selected!", Duration = 3 })
+            end
+        else
+            if originalPosition then
+                hrp.CFrame = CFrame.new(originalPosition)
+            end
+
+            -- Unfreeze
+            humanoid.PlatformStand = false 
+
+            -- Disable auto functions
+            flags['disableSwimming'] = false
+            flags['autoequiprod'] = false
+            flags['autocast'] = false
+            flags['autoshake'] = false
+            flags['autoreel'] = false
+        end
+    end,
+})
+
+
+
+
+FishingTab:CreateLabel("Events Farm") -- Event Farming Label
+
+-- Available Events Label
+local eventLabel = FishingTab:CreateLabel("Checking for events...")
+
+local function updateEventLabel()
+    availableEvents = getAvailableEventZones()
+    local labelText = #availableEvents > 0 and "Available Events: " .. table.concat(availableEvents, ", ") or "No Events Available"
+    eventLabel:Set(labelText)
+end
+
+local eventDropdown = FishingTab:CreateDropdown({
+    Name = "Select Event Zone",
+    Options = availableEvents,
+    CurrentOption = availableEvents[1] and {availableEvents[1]} or {},
+    MultipleOptions = false,
+    Flag = "EventZoneDropdown",
+    Callback = function(Options)
+        selectedEventZone = zones[Options[1]]
+    end,
+})
+
+FishingTab:CreateToggle({
+    Name = "Auto Event Zone",
+    CurrentValue = false,
+    Flag = "AutoEventZoneToggle",
+    Callback = function(Value)
+        local character = getchar()
+        local hrp = gethrp()
+        local humanoid = gethum()
+
+        if Value then
+            while not selectedEventZone do
+                task.wait(1)
+                selectedEventZone = zones[Options[1]]
+            end
+
+            if selectedEventZone then
+                originalEventPosition = hrp.Position
+                hrp.CFrame = CFrame.new(selectedEventZone + Vector3.new(0, 8, 0))
+
+                -- Freeze character
+                humanoid.PlatformStand = true 
+
+                -- Enable auto functions
+                flags['disableSwimming'] = true
+                flags['autoequiprod'] = true
+                flags['autocast'] = true
+                flags['autoshake'] = true
+                flags['autoreel'] = true
+            else
+                Rayfield:Notify({ Title = "Error", Content = "No event zone selected!", Duration = 3 })
+            end
+        else
+            if originalEventPosition then
+                hrp.CFrame = CFrame.new(originalEventPosition)
+            end
+
+            -- Unfreeze
+            humanoid.PlatformStand = false 
+
+            -- Disable auto functions
+            flags['disableSwimming'] = false
+            flags['autoequiprod'] = false
+            flags['autocast'] = false
+            flags['autoshake'] = false
+            flags['autoreel'] = false
+        end
+    end,
+})
+
+
+--// Auto Refresh System
+task.spawn(function()
+    while true do
+        -- Refresh zones
+        zones = getFishingZones()
+        availableEvents = getAvailableEventZones()
+
+        -- Refresh AutoFarm Zone Dropdown
+        local updatedZoneNames = {}
+        for zoneName, _ in pairs(zones) do
+            table.insert(updatedZoneNames, zoneName)
+        end
+        table.sort(updatedZoneNames)
+
+        if autoFarmDropdown then
+            autoFarmDropdown:SetOptions(updatedZoneNames)
+        end
+
+        -- Refresh Event Zone Dropdown
+        if eventDropdown then
+            eventDropdown:SetOptions(availableEvents)
+        end
+
+        -- Refresh Event Label
+        updateEventLabel()
+
+        task.wait(5) -- Refresh every 5 seconds
+    end
+end)
+
+
+-- end here
+
 
 
 
