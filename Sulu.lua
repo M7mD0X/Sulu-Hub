@@ -446,7 +446,7 @@ local function getIslandsFromWorld()
                 if islandFolder:IsA("Folder") then
                     local spawnPoint = islandFolder:FindFirstChild("spawn")
                     if spawnPoint and spawnPoint:IsA("BasePart") then
-                        islands[islandFolder.Name] = spawnPoint.Position + Vectr3.new(0, 8, 0)
+                        islands[islandFolder.Name] = spawnPoint.Position + Vector3.new(0, 8, 0)
                     end
                 end
             end
