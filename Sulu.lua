@@ -314,7 +314,14 @@ end
 local function updateEventLabel()
     local availableEvents = getAvailableEventZones()
     local labelText = #availableEvents > 0 and "Available Events: " .. table.concat(availableEvents, ", ") or "No Events Available"
-    eventLabel:Set(labelText, 4483362458, Color3.fromRGB(255, 255, 255), false) -- Update label text
+
+    if eventLabel.Set then
+        eventLabel:Set(labelText) -- Some UI libraries use Set()
+    elseif eventLabel.SetText then
+        eventLabel:SetText(labelText) -- Some use SetText()
+    elseif eventLabel.Update then
+        eventLabel:Update(labelText) -- Others use Update()
+    end
 end
 
 local eventLabel = FishingTab:CreateLabel("Checking for events...") -- Default text
