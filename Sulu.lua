@@ -148,11 +148,11 @@ RunService.Heartbeat:Connect(function()
         local lureValue = rod.values.lure.Value
 
         if flags['autocast'] and lureValue <= 0.001 then
-            rod.events.cast:FireServer(100, 1)
+            rod.events.cast:FireServer(math.random(30, 99), math.random(0,1)
         end
 
         if flags['autoreel'] and lureValue == 100 then
-            ReplicatedStorage.events.reelfinished:FireServer(100, true)
+            ReplicatedStorage.events.reelfinished:FireServer(99, false)
         end
     end
 end)
@@ -164,7 +164,7 @@ end)
 local selectedZone = nil
 local originalPosition = nil
 
-local function getFishingZones()
+function getFishingZones()
     local zones = {}
     local fishingZones = workspace:FindFirstChild("zones") and workspace.zones:FindFirstChild("fishing")
     
@@ -196,38 +196,38 @@ local selectedEventZone = nil
 local originalEventPosition = nil
 
 -- Function to get all fishing zones
-local function getFishingZones()
-    local zones = {}
-    local fishingZones = workspace:FindFirstChild("zones") and workspace.zones:FindFirstChild("fishing")
+function getFishingZonesevn()
+    local zonesevn = {}
+    local fishingZonesevn = workspace:FindFirstChild("zones") and workspace.zones:FindFirstChild("fishing")
 
-    if fishingZones then
-        for _, zone in pairs(fishingZones:GetChildren()) do
-            if zone:IsA("BasePart") then
-                zones[zone.Name] = zone.Position
+    if fishingZonesevn then
+        for _, zoneevn in pairs(fishingZonesevn:GetChildren()) do
+            if zoneevn:IsA("BasePart") then
+                zonesevn[zoneevn.Name] = zoneevn.Position
             end
         end
     end
 
-    return zones
+    return zonesevn
 end
 
-local zones = getFishingZones()
+local zonesevn = getFishingZones()
 
 -- Sort zones alphabetically
-local zoneNames = {}
-for zoneName, _ in pairs(zones) do
-    table.insert(zoneNames, zoneName)
+local zoneNamesevn = {}
+for zoneNameevn, _ in pairs(zonesevn) do
+    table.insert(zoneNamesevn, zoneNameevn)
 end
-table.sort(zoneNames) -- Sorting alphabetically
+table.sort(zoneNamesevn) -- Sorting alphabetically
 
 -- Define event zones (replace with your actual event zone names)
-local eventZoneNames = { "EventZone1", "EventZone2", "EventZone3", "EventZone4", "EventZone5", "Isonade" } -- Change these to your event zones
+local eventZoneNames = { "Lovestorm Eel", "EventZone2", "Megalodon Default", "EventZone4", "none", "Isonade" } -- Change these to your event zones
 local availableEventZones = {}
 
 -- Filter only available event zones
-for _, zoneName in pairs(eventZoneNames) do
-    if zones[zoneName] then
-        table.insert(availableEventZones, zoneName)
+for _, zoneNameevn in pairs(eventZoneNames) do
+    if zonesevn[zoneNameevn] then
+        table.insert(availableEventZones, zoneNameevn)
     end
 end
 
