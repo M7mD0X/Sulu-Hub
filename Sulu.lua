@@ -30,7 +30,11 @@ local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
 local RunService = cloneref(game:GetService('RunService'))
 local GuiService = cloneref(game:GetService('GuiService'))
 
-local lp = Players.LocalPlayer
+-- local RunService = game:GetService("RunService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+-- local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local lp = game:GetService("Players").LocalPlayer
+
 local flags = {autoshake = false, autocast = false, autoreel = false, nopeakssystems = false, autoequiprod = false}
 local selectedIsland = nil
 
@@ -76,59 +80,42 @@ end
 
 --// Fishing Automation
 
-task.spawn(function()
-    while true do
-        if flags['autoshake'] then
-            local shakeUI = lp.PlayerGui:FindFirstChild('shakeui')
-            if shakeUI then
-                local safeZone = shakeUI:FindFirstChild('safezone')
-                if safeZone then
-                    local button = safeZone:FindFirstChild('button')
-                    if button then
-                        GuiService.SelectedObject = button
-                        if GuiService.SelectedObject == button then
-                            game:GetService('VirtualInputManager'):SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-                            game:GetService('VirtualInputManager'):SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-                        end
-                    end
-                end
-            end
+--// Fishing Automation
+
+RunService.Heartbeat:Connect(function()
+    -- AutoShake Optimization
+    if flags['autoshake'] then
+        local button = lp.PlayerGui:FindFirstChild("shakeui") and lp.PlayerGui.shakeui:FindFirstChild("safezone") and lp.PlayerGui.shakeui.safezone:FindFirstChild("button")
+        if button then
+            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+        end
+    end
+
+    -- Auto Equip Rod Optimization
+    if flags['autoequiprod'] and not FindRod() then
+        local tool = lp.Backpack:FindFirstChildWhichIsA("Tool")
+        if tool then
+            lp.Character.Humanoid:EquipTool(tool)
+        end
+    end
+
+    -- AutoCast Optimization
+    local rod = FindRod()
+    if rod and rod:FindFirstChild("values") and rod.values:FindFirstChild("lure") then
+        local lureValue = rod.values.lure.Value
+
+        if flags['autocast'] and lureValue <= 0.001 then
+            rod.events.cast:FireServer(100, 1)
         end
 
-        if flags['autoequiprod'] then
-            if not FindRod() then
-                for _, tool in pairs(lp.Backpack:GetChildren()) do
-                    if tool:IsA("Tool") and tool:FindFirstChild("values") then
-                        lp.Character.Humanoid:EquipTool(tool)
-                        break
-                    end
-                end
-            end
+        if flags['autoreel'] and lureValue == 100 then
+            ReplicatedStorage.events.reelfinished:FireServer(100, true)
         end
-
-        if flags['autocast'] then
-            local rod = FindRod()
-            if rod and rod:FindFirstChild("values") and rod.values:FindFirstChild("lure") then
-                if rod.values.lure.Value <= 0.001 then
-                    task.wait(0.6) -- Made it slightly faster
-                    rod.events.cast:FireServer(100, 1)
-                end
-            end
-        end
-
-        if flags['autoreel'] then
-            local rod = FindRod()
-            if rod and rod:FindFirstChild("values") and rod.values:FindFirstChild("lure") then
-                if rod.values.lure.Value == 100 then
-                    task.wait(0.5) -- Faster reeling
-                    ReplicatedStorage.events.reelfinished:FireServer(100, true)
-                end
-            end
-        end
-
-        task.wait(0.3)
     end
 end)
+
+
 
 
 
