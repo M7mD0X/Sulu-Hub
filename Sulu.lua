@@ -19,6 +19,7 @@ local Window = Rayfield:CreateWindow({
 --// Create Tabs
 local FishingTab = Window:CreateTab("Fishing", nil) 
 local TeleportTab = Window:CreateTab("Teleport", nil)
+local ShopTab = Window:CreateTab("Shop/Sell", nil)
 local CharacterTab = Window:CreateTab("Character", nil)
 
 
@@ -562,34 +563,9 @@ CharacterTab:CreateToggle({
 
 
 if flags['infoxygen'] then
-        if not deathcon then
-            deathcon = gethum().Died:Connect(function()
-                task.delay(9, function()
-                    if FindChildOfType(getchar(), 'DivingTank', 'Decal') then
-                        FindChildOfType(getchar(), 'DivingTank', 'Decal'):Destroy()
-                    end
-                    local oxygentank = Instance.new('Decal')
-                    oxygentank.Name = 'DivingTank'
-                    oxygentank.Parent = workspace
-                    oxygentank:SetAttribute('Tier', 1/0)
-                    oxygentank.Parent = getchar()
-                    deathcon = nil
-                end)
-            end)
-        end
-        if deathcon and gethum().Health > 0 then
-            if not getchar():FindFirstChild('DivingTank') then
-                local oxygentank = Instance.new('Decal')
-                oxygentank.Name = 'DivingTank'
-                oxygentank.Parent = workspace
-                oxygentank:SetAttribute('Tier', 1/0)
-                oxygentank.Parent = getchar()
-            end
-        end
-    else
-        if FindChildOfType(getchar(), 'DivingTank', 'Decal') then
-            FindChildOfType(getchar(), 'DivingTank', 'Decal'):Destroy()
-        end
+	LocalPlayer.Character.client.oxygen.Disabled = true
+else
+   LocalPlayer.Character.client.oxygen.Disabled = false
 end
 
 
@@ -617,3 +593,30 @@ task.spawn(function()
         task.wait(0.1)
     end
 end)
+
+
+
+
+
+-- Test new features
+
+
+ShopTab:CreateButton({
+   Name = "Sell All",
+   Callback = function()
+         ReplicatedStorage:WaitForChild("events"):WaitForChild("selleverything"):InvokeServer()
+   -- The function that takes place when the button is pressed
+   end,
+})
+
+
+
+ShopTab:CreateButton({
+   Name = "Sell Hand",
+   Callback = function()
+         workspace.world.npcs:FindFirstChild("Marc Merchant").merchant.sell:InvokeServer()
+   -- The function that takes place when the button is pressed
+   end,
+})
+
+
