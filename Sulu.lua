@@ -80,10 +80,12 @@ end
 
 --// Fishing Automation
 
+
 --// Fishing Automation
 
 RunService.Heartbeat:Connect(function()
 
+-- AutoShake (Phantom Input Approach)
     if flags['autoshake'] then
         local shakeUI = lp.PlayerGui:FindFirstChild("shakeui")
         if shakeUI then
@@ -91,17 +93,21 @@ RunService.Heartbeat:Connect(function()
             if safeZone then
                 local button = safeZone:FindFirstChild("button")
                 if button and button:IsA("TextButton") then
-                -- Directly trigger the button event
-                    for _, connection in pairs(getconnections(button.MouseButton1Click)) do
-                        connection:Fire()
-                    end
+                    -- Fake UI input using TweenService to interact with the button
+                    local TweenService = game:GetService("TweenService")
+                    local tweenInfo = TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+                    local fakeClick = TweenService:Create(button, tweenInfo, {Position = button.Position + UDim2.new(0, 1, 0, 1)})
+
+                    fakeClick:Play()
+                    task.wait(0.05) -- Small delay to simulate human-like clicking
+                    fakeClick = TweenService:Create(button, tweenInfo, {Position = button.Position})
+                   fakeClick:Play()
                 end
             end
         end
     end
-
       
-    -- Auto Equip Rod Optimization
+        -- Auto Equip Rod Optimization
     if flags['autoequiprod'] and not FindRod() then
         local tool = lp.Backpack:FindFirstChildWhichIsA("Tool")
         if tool then
@@ -123,8 +129,6 @@ RunService.Heartbeat:Connect(function()
         end
     end
 end)
-
-
 
 
 
