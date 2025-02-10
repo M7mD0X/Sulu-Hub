@@ -30,7 +30,6 @@ local Players = cloneref(game:GetService('Players'))
 local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
 local RunService = cloneref(game:GetService('RunService'))
 local GuiService = cloneref(game:GetService('GuiService'))
-local PlayerGUI = LocalPlayer:FindFirstChildOfClass("PlayerGui")
 
 local lp = Players.LocalPlayer
 local flags = {autoshake = false, autocast = false, autoreel = false, nopeakssystems = false, autoequiprod = false}
