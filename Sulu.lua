@@ -81,23 +81,27 @@ end
 
 --// Fishing Automation
 
-
---// Fishing Automation
-
 RunService.Heartbeat:Connect(function()
 
-    -- AutoShake Optimization
-    if flags['autoshake'] then
-        local button = lp.PlayerGui:FindFirstChild("shakeui") and lp.PlayerGui.shakeui:FindFirstChild("safezone") and lp.PlayerGui.shakeui.safezone:FindFirstChild("button")
-        if button then
-            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-        end
-    end
+	   if flags['autoshake'] then
+            local shakeUI = lp.PlayerGui:FindFirstChild('shakeui')
+            if shakeUI then
+                local safeZone = shakeUI:FindFirstChild('safezone')
+                if safeZone then
+                    local button = safeZone:FindFirstChild('button')
+                    if button then
+                        GuiService.SelectedObject = button
+                        if GuiService.SelectedObject == button then
+                            game:GetService('VirtualInputManager'):SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+                            game:GetService('VirtualInputManager'):SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+                        end
+                    end
+                end
+            end
+		end
 
-            
-      
-      
+
+		
         -- Auto Equip Rod Optimization
     if flags['autoequiprod'] and not FindRod() then
         local tool = lp.Backpack:FindFirstChildWhichIsA("Tool")
