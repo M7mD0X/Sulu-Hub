@@ -78,86 +78,60 @@ end
 
 --// Fishing Automation
 
-
-
--- Rest
-
-if flags['autoreel'] then
-   PlayerGUI.ChildAdded:Connect(function(GUI)
-    if GUI:IsA("ScreenGui") then
-        if GUI.Name == "reel" and autoReel then
-            local reelfinishedEvent = Link:WaitForChild("events"):WaitForChild("reelfinished")
-            if reelfinishedEvent then
-                while GUI do
-                    task.wait(2)
-                    reelfinishedEvent:FireServer(100, false)
+task.spawn(function()
+    while true do
+        if flags['autoshake'] then
+            local shakeUI = lp.PlayerGui:FindFirstChild('shakeui')
+            if shakeUI then
+                local safeZone = shakeUI:FindFirstChild('safezone')
+                if safeZone then
+                    local button = safeZone:FindFirstChild('button')
+                    if button then
+                        GuiService.SelectedObject = button
+                        if GuiService.SelectedObject == button then
+                            game:GetService('VirtualInputManager'):SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+                            game:GetService('VirtualInputManager'):SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+                        end
+                    end
                 end
             end
         end
+
+        if flags['autoequiprod'] then
+            if not FindRod() then
+                for _, tool in pairs(lp.Backpack:GetChildren()) do
+                    if tool:IsA("Tool") and tool:FindFirstChild("values") then
+                        lp.Character.Humanoid:EquipTool(tool)
+                        break
+                    end
+                end
+            end
+        end
+
+        if flags['autocast'] then
+            local rod = FindRod()
+            if rod and rod:FindFirstChild("values") and rod.values:FindFirstChild("lure") then
+                if rod.values.lure.Value <= 0.001 then
+                    task.wait(0.6) -- Made it slightly faster
+                    rod.events.cast:FireServer(100, 1)
+                end
+            end
+        end
+
+        if flags['autoreel'] then
+            local rod = FindRod()
+            if rod and rod:FindFirstChild("values") and rod.values:FindFirstChild("lure") then
+                if rod.values.lure.Value == 100 then
+                    task.wait(0.5) -- Faster reeling
+                    ReplicatedStorage.events.reelfinished:FireServer(100, true)
+                end
+            end
+        end
+
+        task.wait(0.3)
     end
 end)
-  
-   
 
-function AutoFish5()
-    if flags['autoshake'] then
-        task.spawn(function()
-            while AutoFish do
-                local PlayerGUI = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
-                local shakeUI = PlayerGUI:FindFirstChild("shakeui")
-                if shakeUI and shakeUI.Enabled then
-                    local safezone = shakeUI:FindFirstChild("safezone")
-                    if safezone then
-                        local button = safezone:FindFirstChild("button")
-                        if button and button:IsA("ImageButton") and button.Visible then
-                            if autoShake then
-                                local pos = button.AbsolutePosition
-                                local size = button.AbsoluteSize
-                                VirtualInputManager:SendMouseButtonEvent(pos.X + size.X / 2, pos.Y + size.Y / 2, 0, true, game:GetService("Players").LocalPlayer, 0)
-                                VirtualInputManager:SendMouseButtonEvent(pos.X + size.X / 2, pos.Y + size.Y / 2, 0, false, game:GetService("Players").LocalPlayer, 0)
-                            elseif autoShake2 then
-                                GuiService.SelectedObject = button
-                                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-                                VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-                            end
-                        end
-                    end
-                end
-                task.wait()
-            end
-        end)
-    else
-        task.spawn(function()
-            while AutoFish do
-                task.wait(autoShakeDelay)
-                local PlayerGUI = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
-                local shakeUI = PlayerGUI:FindFirstChild("shakeui")
-                if shakeUI and shakeUI.Enabled then
-                    local safezone = shakeUI:FindFirstChild("safezone")
-                    if safezone then
-                        local button = safezone:FindFirstChild("button")
-                        if button and button:IsA("ImageButton") and button.Visible then
-                            if autoShake then
-                                local pos = button.AbsolutePosition
-                                local size = button.AbsoluteSize
-                                VirtualInputManager:SendMouseButtonEvent(pos.X + size.X / 2, pos.Y + size.Y / 2, 0, true, game:GetService("Players").LocalPlayer, 0)
-                                VirtualInputManager:SendMouseButtonEvent(pos.X + size.X / 2, pos.Y + size.Y / 2, 0, false, game:GetService("Players").LocalPlayer, 0)
-                            elseif autoShake2 then
-                                GuiService.SelectedObject = button
-                                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-                                VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-                            end
-                        end
-                    end
-                end
-            end
-        end)
-    end
-end
-
-
-
--- end
 
 
 --// Zone Cast System
