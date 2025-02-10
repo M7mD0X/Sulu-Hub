@@ -86,8 +86,6 @@ end
 
 RunService.Heartbeat:Connect(function()
 
-
-      RunService.Heartbeat:Connect(function()
     -- AutoShake Optimization
     if flags['autoshake'] then
         local button = lp.PlayerGui:FindFirstChild("shakeui") and lp.PlayerGui.shakeui:FindFirstChild("safezone") and lp.PlayerGui.shakeui.safezone:FindFirstChild("button")
