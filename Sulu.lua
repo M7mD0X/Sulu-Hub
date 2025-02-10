@@ -101,8 +101,6 @@ Bypass()
 
 --// Fishing Automation
 
---// Refresh Zones/Events System
-
 RunService.Heartbeat:Connect(function()
 		
     if flags['autoshake'] then
@@ -111,20 +109,30 @@ RunService.Heartbeat:Connect(function()
             local safeZone = shakeUI:FindFirstChild('safezone')
             if safeZone then
                 local button = safeZone:FindFirstChild('button')
-                if button and button:IsA("GuiObject") then -- Ensure it's a valid GUI object
-                    if GuiService.SelectedObject ~= button then -- Avoid redundant assignments
+                
+                -- Check if button is a valid GuiObject before setting it
+                if button and button:IsA("GuiObject") and button.Parent then
+                    -- Only set SelectedObject if it's different
+                    if GuiService.SelectedObject ~= button then
                         GuiService.SelectedObject = button
                     end
 
+                    -- Simulate pressing Enter if button is properly selected
                     if GuiService.SelectedObject == button then
-                        game:GetService('VirtualInputManager'):SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-                        game:GetService('VirtualInputManager'):SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+                        local vim = game:GetService('VirtualInputManager')
+                        vim:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+                        vim:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+                    end
+                else
+                    -- Prevent setting an invalid object
+                    if GuiService.SelectedObject and not GuiService.SelectedObject.Parent then
+                        GuiService.SelectedObject = nil
                     end
                 end
             end
         end
-		end
- 
+    end
+
 		
     -- Auto Equip Rod Optimization
     if flags['autoequiprod'] and not FindRod() then
