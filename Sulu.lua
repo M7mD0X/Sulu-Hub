@@ -34,6 +34,7 @@ local GuiService = cloneref(game:GetService('GuiService'))
 local VirtualInputManager = game:GetService("VirtualInputManager")
 -- local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local lp = game:GetService("Players").LocalPlayer
+local PlayerGui = lp:FindFirstChild("PlayerGui")
 
 local flags = {autoshake = false, autocast = false, autoreel = false, nopeakssystems = false, autoequiprod = false}
 local selectedIsland = nil
@@ -85,27 +86,19 @@ end
 
 RunService.Heartbeat:Connect(function()
 
--- AutoShake (Phantom Input Approach)
-    if flags['autoshake'] then
-        local shakeUI = lp.PlayerGui:FindFirstChild("shakeui")
-        if shakeUI then
-            local safeZone = shakeUI:FindFirstChild("safezone")
-            if safeZone then
-                local button = safeZone:FindFirstChild("button")
-                if button and button:IsA("TextButton") then
-                    -- Fake UI input using TweenService to interact with the button
-                    local TweenService = game:GetService("TweenService")
-                    local tweenInfo = TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-                    local fakeClick = TweenService:Create(button, tweenInfo, {Position = button.Position + UDim2.new(0, 1, 0, 1)})
 
-                    fakeClick:Play()
-                    task.wait(0.05) -- Small delay to simulate human-like clicking
-                    fakeClick = TweenService:Create(button, tweenInfo, {Position = button.Position})
-                   fakeClick:Play()
-                end
-            end
+      RunService.Heartbeat:Connect(function()
+    -- AutoShake Optimization
+    if flags['autoshake'] then
+        local button = lp.PlayerGui:FindFirstChild("shakeui") and lp.PlayerGui.shakeui:FindFirstChild("safezone") and lp.PlayerGui.shakeui.safezone:FindFirstChild("button")
+        if button then
+            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
         end
     end
+
+            
+      
       
         -- Auto Equip Rod Optimization
     if flags['autoequiprod'] and not FindRod() then
