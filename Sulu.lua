@@ -299,6 +299,7 @@ FishingTab:CreateToggle({
                 hrp.CFrame = CFrame.new(selectedZone + Vector3.new(0, 8, 0)) -- Teleport slightly above the zone
 
                 -- Freeze character without anchoring
+		game:GetService("Workspace").Gravity = 0
                 humanoid.PlatformStand = true 
 
                 -- Enable auto functions
@@ -316,6 +317,7 @@ FishingTab:CreateToggle({
             end
 
             -- Unfreeze character
+	    game:GetService("Workspace").Gravity = 196.2
             humanoid.PlatformStand = false 
 
             -- Disable auto functions
@@ -370,6 +372,7 @@ FishingTab:CreateToggle({
             print("Teleporting to:", selectedEventZone) -- Debugging
             hrp.CFrame = CFrame.new(selectedEventZone + Vector3.new(0, 8, 0)) -- Avoid nil error
 
+	    game:GetService("Workspace").Gravity = 0
             humanoid.PlatformStand = true 
 
             -- Enable auto functions
@@ -383,6 +386,7 @@ FishingTab:CreateToggle({
             hrp.CFrame = CFrame.new(originalEventPosition)
           end
 
+	    game:GetService("Workspace").Gravity = 196.2
             humanoid.PlatformStand = false 
 
           -- Disable auto functions
