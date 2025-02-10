@@ -104,6 +104,7 @@ Bypass()
 --// Refresh Zones/Events System
 
 RunService.Heartbeat:Connect(function()
+		
     if flags['autoshake'] then
         local shakeUI = lp.PlayerGui:FindFirstChild('shakeui')
         if shakeUI then
@@ -228,28 +229,44 @@ end
 
 task.spawn(function()
     while true do
-        -- Refresh zones data
-        zones = getFishingZones()
-        availableEvents = getAvailableEventZones()
-        task.wait(5)
-        -- Refresh AutoFarm Zone Dropdown
-        local updatedZoneNames = {}
-        for zoneName, _ in pairs(zones) do
-            table.insert(updatedZoneNames, zoneName)
-        end
-        table.sort(updatedZoneNames)
+        -- Refresh zones data safely
+        local success, newZones = pcall(getFishingZones)
+        local success2, newEvents = pcall(getAvailableEventZones)
 
+        if success and type(newZones) == "table" then
+            zones = newZones
+        else
+            zones = {} -- Prevent nil errors
+        end
+
+        if success2 and type(newEvents) == "table" then
+            availableEvents = newEvents
+        else
+            availableEvents = {}
+        end
+
+        task.wait(5) -- Wait before updating UI
+
+        -- Refresh AutoFarm Zone Dropdown
         if autoFarmZoneDropdown then
+            local updatedZoneNames = {}
+            for zoneName, _ in pairs(zones) do
+                table.insert(updatedZoneNames, zoneName)
+            end
+            table.sort(updatedZoneNames)
             autoFarmZoneDropdown:SetOptions(updatedZoneNames)
+        else
+            warn("autoFarmZoneDropdown is nil!")
         end
 
         -- Refresh Event Zone Dropdown
         if eventDropdown then
             eventDropdown:SetOptions(availableEvents)
+        else
+            warn("eventDropdown is nil!")
         end
     end
 end)
-
 
 
 --// UI for Zone Cast
