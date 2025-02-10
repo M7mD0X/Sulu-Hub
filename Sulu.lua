@@ -83,12 +83,14 @@ end
 --// Bypass System Anti Cheats
 
 local function Bypass()
+    print("bypassing")
     -- Remove anti-cheat detection
     for _, v in pairs(getgc(true)) do
         if type(v) == "function" and islclosure(v) and not is_synapse_function(v) then
             local info = debug.getinfo(v)
             if info.name == "CheckBan" or info.name == "CheckExploit" then
                 hookfunction(v, function() return nil end)
+		print("bypassed")
             end
         end
     end
@@ -148,7 +150,7 @@ RunService.Heartbeat:Connect(function()
         local lureValue = rod.values.lure.Value
 
         if flags['autocast'] and lureValue <= 0.001 then
-            rod.events.cast:FireServer(math.random(30, 99), math.random(0,1)
+            rod.events.cast:FireServer(math.random(30, 99), math.random(0,1))
         end
 
         if flags['autoreel'] and lureValue == 100 then
@@ -164,7 +166,7 @@ end)
 local selectedZone = nil
 local originalPosition = nil
 
-function getFishingZones()
+local function getFishingZones()
     local zones = {}
     local fishingZones = workspace:FindFirstChild("zones") and workspace.zones:FindFirstChild("fishing")
     
@@ -196,38 +198,38 @@ local selectedEventZone = nil
 local originalEventPosition = nil
 
 -- Function to get all fishing zones
-function getFishingZonesevn()
-    local zonesevn = {}
-    local fishingZonesevn = workspace:FindFirstChild("zones") and workspace.zones:FindFirstChild("fishing")
+local function getFishingZones()
+    local zones = {}
+    local fishingZones = workspace:FindFirstChild("zones") and workspace.zones:FindFirstChild("fishing")
 
-    if fishingZonesevn then
-        for _, zoneevn in pairs(fishingZonesevn:GetChildren()) do
-            if zoneevn:IsA("BasePart") then
-                zonesevn[zoneevn.Name] = zoneevn.Position
+    if fishingZones then
+        for _, zone in pairs(fishingZones:GetChildren()) do
+            if zone:IsA("BasePart") then
+                zones[zone.Name] = zone.Position
             end
         end
     end
 
-    return zonesevn
+    return zones
 end
 
-local zonesevn = getFishingZones()
+local zones = getFishingZones()
 
 -- Sort zones alphabetically
-local zoneNamesevn = {}
-for zoneNameevn, _ in pairs(zonesevn) do
-    table.insert(zoneNamesevn, zoneNameevn)
+local zoneNames = {}
+for zoneName, _ in pairs(zones) do
+    table.insert(zoneNames, zoneName)
 end
-table.sort(zoneNamesevn) -- Sorting alphabetically
+table.sort(zoneNames) -- Sorting alphabetically
 
 -- Define event zones (replace with your actual event zone names)
-local eventZoneNames = { "Lovestorm Eel", "EventZone2", "Megalodon Default", "EventZone4", "none", "Isonade" } -- Change these to your event zones
+local eventZoneNames = { "Lovestorm Eel", "The Kraken Pool", "Megalodon Default", "EventZone4", "none", "Isonade" } -- Change these to your event zones
 local availableEventZones = {}
 
 -- Filter only available event zones
-for _, zoneNameevn in pairs(eventZoneNames) do
-    if zonesevn[zoneNameevn] then
-        table.insert(availableEventZones, zoneNameevn)
+for _, zoneName in pairs(eventZoneNames) do
+    if zones[zoneName] then
+        table.insert(availableEventZones, zoneName)
     end
 end
 
@@ -264,6 +266,7 @@ task.spawn(function()
             table.sort(updatedZoneNames)
             autoFarmZoneDropdown:SetOptions(updatedZoneNames)
         else
+	    wait(15)
             warn("autoFarmZoneDropdown is nil!")
         end
 
@@ -271,6 +274,7 @@ task.spawn(function()
         if eventDropdown then
             eventDropdown:SetOptions(availableEvents)
         else
+	    wait(15)
             warn("eventDropdown is nil!")
         end
     end
