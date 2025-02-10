@@ -80,6 +80,25 @@ end
 
 
 
+--// Bypass System Anti Cheats
+
+local function Bypass()
+    -- Remove anti-cheat detection
+    for _, v in pairs(getgc(true)) do
+        if type(v) == "function" and islclosure(v) and not is_synapse_function(v) then
+            local info = debug.getinfo(v)
+            if info.name == "CheckBan" or info.name == "CheckExploit" then
+                hookfunction(v, function() return nil end)
+            end
+        end
+    end
+end
+
+-- Run Bypass immediately
+Bypass()
+
+
+
 --// Fishing Automation
 
 RunService.Heartbeat:Connect(function()
@@ -209,7 +228,7 @@ task.spawn(function()
         -- Refresh zones data
         zones = getFishingZones()
         availableEvents = getAvailableEventZones()
-
+        task.wait(5)
         -- Refresh AutoFarm Zone Dropdown
         local updatedZoneNames = {}
         for zoneName, _ in pairs(zones) do
