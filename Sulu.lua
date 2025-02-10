@@ -568,27 +568,6 @@ end)
 
 
 
---// Infinite Oxygen
-
-CharacterTab:CreateToggle({
-    Name = "Infinite Oxygen at Water",
-    CurrentValue = false,
-    Flag = "infoxygen",
-    Callback = function(Value)
-        flags['infoxygen'] = Value
-    end,
-})
-
-
-
-if flags['infoxygen'] then
-	LocalPlayer.Character.client.oxygen.Disabled = true
-else
-   LocalPlayer.Character.client.oxygen.Disabled = false
-end
-
-
-
 --// Infinite Oxygen at Peaks System
 
 CharacterTab:CreateToggle({
