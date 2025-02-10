@@ -101,28 +101,31 @@ Bypass()
 
 --// Fishing Automation
 
-RunService.Heartbeat:Connect(function()
+--// Refresh Zones/Events System
 
-	   if flags['autoshake'] then
-            local shakeUI = lp.PlayerGui:FindFirstChild('shakeui')
-            if shakeUI then
-                local safeZone = shakeUI:FindFirstChild('safezone')
-                if safeZone then
-                    local button = safeZone:FindFirstChild('button')
-                    if button then
+RunService.Heartbeat:Connect(function()
+    if flags['autoshake'] then
+        local shakeUI = lp.PlayerGui:FindFirstChild('shakeui')
+        if shakeUI then
+            local safeZone = shakeUI:FindFirstChild('safezone')
+            if safeZone then
+                local button = safeZone:FindFirstChild('button')
+                if button and button:IsA("GuiObject") then -- Ensure it's a valid GUI object
+                    if GuiService.SelectedObject ~= button then -- Avoid redundant assignments
                         GuiService.SelectedObject = button
-                        if GuiService.SelectedObject == button then
-                            game:GetService('VirtualInputManager'):SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-                            game:GetService('VirtualInputManager'):SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-                        end
+                    end
+
+                    if GuiService.SelectedObject == button then
+                        game:GetService('VirtualInputManager'):SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+                        game:GetService('VirtualInputManager'):SendKeyEvent(false, Enum.KeyCode.Return, false, game)
                     end
                 end
             end
+        end
 		end
-
-
+ 
 		
-        -- Auto Equip Rod Optimization
+    -- Auto Equip Rod Optimization
     if flags['autoequiprod'] and not FindRod() then
         local tool = lp.Backpack:FindFirstChildWhichIsA("Tool")
         if tool then
