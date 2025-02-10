@@ -329,6 +329,7 @@ FishingTab:CreateToggle({
             end
 
             if selectedEventZone then
+                print(selectedEventZone)
                 originalEventPosition = hrp.Position -- Save player's position
                 hrp.CFrame = CFrame.new(selectedEventZone + Vector3.new(0, 8, 0)) -- Teleport slightly above the event zone
 
