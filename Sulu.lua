@@ -321,45 +321,43 @@ FishingTab:CreateToggle({
         local hrp = gethrp()
         local humanoid = gethum()
 
+        if not character or not hrp or not humanoid then
+          Rayfield:Notify({ Title = "Error", Content = "Character not found!", Duration = 3 })
+          return
+        end
+
         if Value then
-            -- Wait for the event zone to be available
-            while not selectedEventZone do
-                task.wait(1)
-                selectedEventZone = zones[Options[1]]
-            end
-
-            if selectedEventZone then
-                print(selectedEventZone)
-                originalEventPosition = hrp.Position -- Save player's position
-                hrp.CFrame = CFrame.new(selectedEventZone + Vector3.new(0, 8, 0)) -- Teleport slightly above the event zone
-
-                -- Freeze character without anchoring
-                humanoid.PlatformStand = true 
-
-                -- Enable auto functions
-                flags['disableSwimming'] = true
-                flags['autoequiprod'] = true
-                flags['autocast'] = true
-                flags['autoshake'] = true
-                flags['autoreel'] = true
-            else
+            if not selectedEventZone then
                 Rayfield:Notify({ Title = "Error", Content = "No event zone selected!", Duration = 3 })
-            end
-        else
-            if originalEventPosition then
-                hrp.CFrame = CFrame.new(originalEventPosition) -- Teleport back
+                return
             end
 
-            -- Unfreeze character
+            print("Teleporting to:", selectedEventZone) -- Debugging
+            hrp.CFrame = CFrame.new(selectedEventZone + Vector3.new(0, 8, 0)) -- Avoid nil error
+
+            humanoid.PlatformStand = true 
+
+            -- Enable auto functions
+            flags['disableSwimming'] = true
+            flags['autoequiprod'] = true
+            flags['autocast'] = true
+            flags['autoshake'] = true
+            flags['autoreel'] = true
+        else
+          if originalEventPosition then
+            hrp.CFrame = CFrame.new(originalEventPosition)
+          end
+
             humanoid.PlatformStand = false 
 
-            -- Disable auto functions
+          -- Disable auto functions
             flags['disableSwimming'] = false
             flags['autoequiprod'] = false
             flags['autocast'] = false
             flags['autoshake'] = false
             flags['autoreel'] = false
         end
+         
     end,
 })
 
