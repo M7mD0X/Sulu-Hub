@@ -298,6 +298,7 @@ FishingTab:CreateToggle({
 --// Event Cast Label / UIs
 
 FishingTab:CreateLabel("Events Farm") -- Label for event zones
+local eventLabel = FishingTab:CreateLabel("Checking for events...") -- Default text
 
 -- Available Events Label
 local function getAvailableEventZones()
@@ -313,12 +314,11 @@ end
 local function updateEventLabel()
     local availableEvents = getAvailableEventZones()
     local labelText = #availableEvents > 0 and "Available Events: " .. table.concat(availableEvents, ", ") or "No Events Available"
-   
-    eventLabel:SetText(labelText) -- Some use SetText()
+    eventLabel:Set(labelText) -- Some use SetText()
 
 end
 
-local eventLabel = FishingTab:CreateLabel("Checking for events...") -- Default text
+UpdateEventLabel()
 
 -- Update label every few seconds
 task.spawn(function()
