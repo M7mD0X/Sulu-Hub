@@ -111,30 +111,19 @@ RunService.Heartbeat:Connect(function()
             local safeZone = shakeUI:FindFirstChild('safezone')
             if safeZone then
                 local button = safeZone:FindFirstChild('button')
-                
-                -- Check if button is a valid GuiObject before setting it
-                if button and button:IsA("GuiObject") and button.Parent then
-                    -- Only set SelectedObject if it's different
-                    if GuiService.SelectedObject ~= button then
-                        GuiService.SelectedObject = button
-                    end
 
-                    -- Simulate pressing Enter if button is properly selected
-                    if GuiService.SelectedObject == button then
-                        local vim = game:GetService('VirtualInputManager')
-                        vim:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-                        vim:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-                    end
-                else
-                    -- Prevent setting an invalid object
-                    if GuiService.SelectedObject and not GuiService.SelectedObject.Parent then
-                        GuiService.SelectedObject = nil
-                    end
+                -- Check if button is valid and has a Click event
+                if button and button:IsA("TextButton") then
+                    pcall(function()
+                        button:Activate() -- Simulates clicking the button
+                    end)
                 end
             end
         end
     end
 	
+
+
 		
     -- Auto Equip Rod Optimization
     if flags['autoequiprod'] and not FindRod() then
@@ -154,6 +143,7 @@ RunService.Heartbeat:Connect(function()
         end
 
         if flags['autoreel'] and lureValue == 100 then
+	    wait(0.2)
             ReplicatedStorage.events.reelfinished:FireServer(100, false)
         end
     end
@@ -376,7 +366,8 @@ FishingTab:CreateToggle({
         end
 
         if Value then
-            if not selectedEventZone then
+            if selectedEventZone then
+		originalPositionEvent = hrp.Position
                 Rayfield:Notify({ Title = "Error", Content = "No event zone selected!", Duration = 3 })
                 return
             end
@@ -394,12 +385,13 @@ FishingTab:CreateToggle({
             flags['autoshake'] = true
             flags['autoreel'] = true
         else
-          if originalEventPosition then
-            hrp.CFrame = CFrame.new(originalEventPosition)
+          if originalPositionEvent then
+            hrp.CFrame = CFrame.new(originalPositionEvent)
           end
 
 	    game:GetService("Workspace").Gravity = 196.2
             humanoid.PlatformStand = false 
+	    
 
           -- Disable auto functions
             flags['disableSwimming'] = false
