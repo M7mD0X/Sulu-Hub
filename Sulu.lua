@@ -156,11 +156,16 @@ RunService.Heartbeat:Connect(function()
         end
 
         if flags['autoreel'] and lureValue == 100 then
-	    wait(0.2)
+	    wait(0.4)
             ReplicatedStorage.events.reelfinished:FireServer(100, false)
         end
     end
 end)
+
+
+
+
+--// Zone Cast System
 
 
 
@@ -188,18 +193,27 @@ local function updateFishingZones()
     return zones
 end
 
--- Function to refresh dropdown dynamically
+-- Function to refresh dropdown only if needed
 local function refreshDropdown()
     local newZones = updateFishingZones()
-    dropdownOptions = {} -- Clear previous options
+    local newDropdownOptions = {}
 
     for zoneName, _ in pairs(newZones) do
-        table.insert(dropdownOptions, zoneName)
+        table.insert(newDropdownOptions, zoneName)
     end
 
-    -- Update dropdown with new zone names
-    if zonesDropdown then
+    -- Only refresh if zones actually changed
+    if #newDropdownOptions ~= #dropdownOptions then
+        dropdownOptions = newDropdownOptions
+
+        -- Preserve current selection
+        local currentSelection = zonesDropdown.CurrentOption[1] or nil
         zonesDropdown:Refresh(dropdownOptions)
+
+        -- Restore selection if it's still available
+        if currentSelection and table.find(dropdownOptions, currentSelection) then
+            zonesDropdown:Set({currentSelection})
+        end
     end
 
     return newZones
@@ -265,12 +279,17 @@ FishingTab:CreateToggle({
     end,
 })
 
--- Auto-Update Dropdown Every 5 Seconds (For Dynamic Zone Changes)
+-- Auto-Update Dropdown Every 5 Seconds (Only Refreshes When Needed)
 task.spawn(function()
     while task.wait(5) do
         refreshDropdown()
     end
 end)
+
+
+
+
+
 
 
 
