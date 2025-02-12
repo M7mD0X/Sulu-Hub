@@ -103,8 +103,8 @@ Bypass()
 
 --// Fishing Automation
 
+
 RunService.Heartbeat:Connect(function()
-		
     if flags['autoshake'] then
         local shakeUI = lp.PlayerGui:FindFirstChild('shakeui')
         if shakeUI then
@@ -134,7 +134,7 @@ RunService.Heartbeat:Connect(function()
             end
         end
     end
-
+	
 		
     -- Auto Equip Rod Optimization
     if flags['autoequiprod'] and not FindRod() then
