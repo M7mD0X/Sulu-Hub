@@ -201,7 +201,7 @@ FishingTab:CreateLabel("Zone Cast") -- Added label at the top
 FishingTab:CreateDropdown({
     Name = "Select Zone",
     Options = zoneNames,
-    CurrentOption = zoneNames[1] and {zoneNames[1]} or {},
+    CurrentOption = {},
     MultipleOptions = false,
     Flag = "autoFarmZoneDropdown",
     Callback = function(Options)
