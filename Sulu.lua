@@ -165,13 +165,12 @@ end)
 
 
 
-
-
 --// Zone Cast System
 
 local selectedZone = nil
 local originalPosition = nil
 local dropdownOptions = {}
+local zonesDropdown -- Store dropdown UI element
 
 -- Function to get fishing zones dynamically
 local function updateFishingZones()
@@ -189,6 +188,7 @@ local function updateFishingZones()
     return zones
 end
 
+-- Function to refresh dropdown dynamically
 local function refreshDropdown()
     local newZones = updateFishingZones()
     dropdownOptions = {} -- Clear previous options
@@ -197,30 +197,25 @@ local function refreshDropdown()
         table.insert(dropdownOptions, zoneName)
     end
 
-    -- Update dropdown UI
-    FishingTab:UpdateDropdown({
-        Flag = "autoFarmZoneDropdown",
-        Options = dropdownOptions
-    })
+    -- Update dropdown with new zone names
+    if zonesDropdown then
+        zonesDropdown:Refresh(dropdownOptions)
+    end
 
     return newZones
 end
 
--- Initial Zone Fetch
-local zones = refreshDropdown()
-
 --// UI for Zone Cast
 FishingTab:CreateLabel("Zone Cast") -- Added label at the top
 
-FishingTab:CreateDropdown({
+zonesDropdown = FishingTab:CreateDropdown({
     Name = "Select Zone",
     Options = dropdownOptions,
     CurrentOption = {},
     MultipleOptions = false,
     Flag = "autoFarmZoneDropdown",
     Callback = function(Options)
-        zones = refreshDropdown() -- Refresh zones when selecting
-        selectedZone = zones[Options[1]]
+        selectedZone = updateFishingZones()[Options[1]]
     end,
 })
 
@@ -236,7 +231,7 @@ FishingTab:CreateToggle({
         if Value then
             if selectedZone then
                 originalPosition = hrp.Position -- Save player's position
-                hrp.CFrame = CFrame.new(selectedZone + Vector3.new(0, 8, 0)) -- Teleport slightly above the zone
+                hrp.CFrame = CFrame.new(selectedZone + Vector3.new(0, 8, 0)) -- Teleport above the zone
 
                 -- Freeze character without anchoring
                 game:GetService("Workspace").Gravity = 0
@@ -273,13 +268,9 @@ FishingTab:CreateToggle({
 -- Auto-Update Dropdown Every 5 Seconds (For Dynamic Zone Changes)
 task.spawn(function()
     while task.wait(5) do
-	print("updateing Zones")
         refreshDropdown()
     end
 end)
-
-
-
 
 
 
