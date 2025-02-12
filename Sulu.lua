@@ -103,8 +103,6 @@ Bypass()
 
 --// Fishing Automation
 
-
-
 RunService.Heartbeat:Connect(function()
 		
     if flags['autoshake'] then
@@ -166,15 +164,20 @@ end)
 
 
 
+
+
+
 --// Zone Cast System
 
 local selectedZone = nil
 local originalPosition = nil
+local dropdownOptions = {}
 
-local function getFishingZones()
+-- Function to get fishing zones dynamically
+local function updateFishingZones()
     local zones = {}
     local fishingZones = workspace:FindFirstChild("zones") and workspace.zones:FindFirstChild("fishing")
-    
+
     if fishingZones then
         for _, zone in pairs(fishingZones:GetChildren()) do
             if zone:IsA("BasePart") then
@@ -186,25 +189,37 @@ local function getFishingZones()
     return zones
 end
 
-local zones = getFishingZones()
-local zoneNames = {}
-for zoneName, _ in pairs(zones) do
-    table.insert(zoneNames, zoneName)
+local function refreshDropdown()
+    local newZones = updateFishingZones()
+    dropdownOptions = {} -- Clear previous options
+
+    for zoneName, _ in pairs(newZones) do
+        table.insert(dropdownOptions, zoneName)
+    end
+
+    -- Update dropdown UI
+    FishingTab:UpdateDropdown({
+        Flag = "autoFarmZoneDropdown",
+        Options = dropdownOptions
+    })
+
+    return newZones
 end
 
-
+-- Initial Zone Fetch
+local zones = refreshDropdown()
 
 --// UI for Zone Cast
-
 FishingTab:CreateLabel("Zone Cast") -- Added label at the top
 
 FishingTab:CreateDropdown({
     Name = "Select Zone",
-    Options = zoneNames,
+    Options = dropdownOptions,
     CurrentOption = {},
     MultipleOptions = false,
     Flag = "autoFarmZoneDropdown",
     Callback = function(Options)
+        zones = refreshDropdown() -- Refresh zones when selecting
         selectedZone = zones[Options[1]]
     end,
 })
@@ -224,7 +239,7 @@ FishingTab:CreateToggle({
                 hrp.CFrame = CFrame.new(selectedZone + Vector3.new(0, 8, 0)) -- Teleport slightly above the zone
 
                 -- Freeze character without anchoring
-		game:GetService("Workspace").Gravity = 0
+                game:GetService("Workspace").Gravity = 0
                 humanoid.PlatformStand = true 
 
                 -- Enable auto functions
@@ -242,7 +257,7 @@ FishingTab:CreateToggle({
             end
 
             -- Unfreeze character
-	    game:GetService("Workspace").Gravity = 196.2
+            game:GetService("Workspace").Gravity = 196.2
             humanoid.PlatformStand = false 
 
             -- Disable auto functions
@@ -254,6 +269,17 @@ FishingTab:CreateToggle({
         end
     end,
 })
+
+-- Auto-Update Dropdown Every 5 Seconds (For Dynamic Zone Changes)
+task.spawn(function()
+    while task.wait(5) do
+	print("updateing Zones")
+        refreshDropdown()
+    end
+end)
+
+
+
 
 
 
