@@ -154,7 +154,7 @@ RunService.Heartbeat:Connect(function()
         end
 
         if flags['autoreel'] and lureValue == 100 then
-            ReplicatedStorage.events.reelfinished:FireServer(99, false)
+            ReplicatedStorage.events.reelfinished:FireServer(100, false)
         end
     end
 end)
